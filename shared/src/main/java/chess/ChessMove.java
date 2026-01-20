@@ -42,4 +42,8 @@ public class ChessMove {
     public ChessPiece.PieceType getPromotionPiece() {
         return promotionPiece;
     }
+
+    public String toString(){
+        return String.format("%s%s",startPosition,endPosition);
+    }
 }
