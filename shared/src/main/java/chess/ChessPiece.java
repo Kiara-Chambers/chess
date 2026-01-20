@@ -54,6 +54,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
+        //Bishop
         if(piece.getPieceType()== PieceType.BISHOP){
             List<ChessMove> bishopList = new ArrayList<>();
             for (int i =1;i<=8;i++){
@@ -74,9 +75,25 @@ public class ChessPiece {
                         bishopList.add(new ChessMove(myPosition, new ChessPosition(i,j),null));
                     }
                 }
+
             }
             return bishopList;
         }
-        return List.of();
+        //King
+        if(piece.getPieceType()== PieceType.KING) {
+            List<ChessMove> kingList = new ArrayList<>();
+            for (int i=-1;i<=1;i++) {
+                for (int j=-1;j<=1;j++){
+                    if(i==0 && j ==0){
+                        continue;
+                    }
+                    kingList.add(new ChessMove(myPosition, new ChessPosition(i+myPosition.getRow(),j+myPosition.getColumn()),null));
+                }
+            }
+            return kingList;
+            }
+
+
+            return List.of();
     }
 }
