@@ -14,6 +14,7 @@ public class ChessPiece {
 
     private ChessGame.TeamColor pieceColor;
     private PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
@@ -55,24 +56,24 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         //Bishop
-        if(piece.getPieceType()== PieceType.BISHOP){
+        if (piece.getPieceType() == PieceType.BISHOP) {
             List<ChessMove> bishopList = new ArrayList<>();
-            for (int i =1;i<=8;i++){
-                for(int j =1;j<=8;j++){
-                    if(myPosition.getRow()==i && myPosition.getColumn()==j){
+            for (int i = 1; i <= 8; i++) {
+                for (int j = 1; j <= 8; j++) {
+                    if (myPosition.getRow() == i && myPosition.getColumn() == j) {
                         continue;
                     }
-                    if((myPosition.getRow()-i) == myPosition.getColumn()-j){
-                        if(board.getPiece(new ChessPosition(i,j))!=null){
+                    if ((myPosition.getRow() - i) == myPosition.getColumn() - j) {
+                        if (board.getPiece(new ChessPosition(i, j)) != null) {
                             continue;
                         }
-                        bishopList.add(new ChessMove(myPosition, new ChessPosition(i,j),null));
+                        bishopList.add(new ChessMove(myPosition, new ChessPosition(i, j), null));
                     }
-                    if((myPosition.getRow()-i) == -(myPosition.getColumn()-j)){
-                        if(board.getPiece(new ChessPosition(i,j))!=null){
+                    if ((myPosition.getRow() - i) == -(myPosition.getColumn() - j)) {
+                        if (board.getPiece(new ChessPosition(i, j)) != null) {
                             continue;
                         }
-                        bishopList.add(new ChessMove(myPosition, new ChessPosition(i,j),null));
+                        bishopList.add(new ChessMove(myPosition, new ChessPosition(i, j), null));
                     }
                 }
 
@@ -80,20 +81,34 @@ public class ChessPiece {
             return bishopList;
         }
         //King
-        if(piece.getPieceType()== PieceType.KING) {
+        if (piece.getPieceType() == PieceType.KING) {
             List<ChessMove> kingList = new ArrayList<>();
-            for (int i=-1;i<=1;i++) {
-                for (int j=-1;j<=1;j++){
-                    if(i==0 && j ==0){
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i == 0 && j == 0) {
                         continue;
                     }
-                    kingList.add(new ChessMove(myPosition, new ChessPosition(i+myPosition.getRow(),j+myPosition.getColumn()),null));
+                    kingList.add(new ChessMove(myPosition, new ChessPosition(i + myPosition.getRow(), j + myPosition.getColumn()), null));
                 }
             }
             return kingList;
+        }
+        //Rook
+        if (piece.getPieceType() == PieceType.ROOK) {
+            List<ChessMove> rookList = new ArrayList<>();
+            for (int i =1; i<=8;i++){
+                ChessMove move1 = new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), i), null);
+                ChessMove move2 = new ChessMove(myPosition, new ChessPosition(i, myPosition.getColumn()), null);
+                if (!(i == myPosition.getColumn())){
+                    rookList.add(move1);
+                }
+                if (!(i == myPosition.getRow())){
+                    rookList.add(move2);
+                }
             }
+            return rookList;
+        }
 
-
-            return List.of();
+        return List.of();
     }
 }
