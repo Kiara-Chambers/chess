@@ -138,7 +138,28 @@ public class ChessPiece {
                 moveList.add(newSpot);
             }
 
+            //Moving Diagonally to capture
+            ChessPosition newPos2, newPos3, newPos4, newPos5;
+            //white moves diagonally to capture black
+            newPos2 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()+1);
+            newPos3 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()-1);
 
+            if((board.getPiece(newPos2)!=null)&&(board.getPiece(newPos2).getTeamColor()== ChessGame.TeamColor.BLACK)){
+                moveList.add(new ChessMove(myPosition,newPos2,null));
+            }
+            if(board.getPiece(newPos3)!=null&&board.getPiece(newPos3).getTeamColor()== ChessGame.TeamColor.BLACK){
+                moveList.add(new ChessMove(myPosition,newPos3,null));
+            }
+            //black moves diagonally to capture white
+            newPos4 = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()+1);
+            newPos5 = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()-1);
+
+            if((board.getPiece(newPos4)!=null)&&(board.getPiece(newPos4).getTeamColor()== ChessGame.TeamColor.WHITE)){
+                moveList.add(new ChessMove(myPosition,newPos4,null));
+            }
+            if(board.getPiece(newPos5)!=null&&board.getPiece(newPos5).getTeamColor()== ChessGame.TeamColor.WHITE){
+                moveList.add(new ChessMove(myPosition,newPos5,null));
+            }
         }
         //Queen
         if (piece.getPieceType() == PieceType.QUEEN) {
