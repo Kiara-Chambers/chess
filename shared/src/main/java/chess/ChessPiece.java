@@ -103,6 +103,10 @@ public class ChessPiece {
                         continue;
                     }
                     ChessPosition newPos = new ChessPosition(i + myPosition.getRow(), j + myPosition.getColumn());
+                    //Can't move off the grid
+                    if(newPos.getColumn()>8 || newPos.getRow()>8){
+                        continue;
+                    }
                     ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                     //You can move on top of enemies
                     if(board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())){
