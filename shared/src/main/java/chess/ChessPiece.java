@@ -73,26 +73,47 @@ public class ChessPiece {
         List<ChessMove> moveList = new ArrayList<>();
         //Bishop
         if (piece.getPieceType() == PieceType.BISHOP) {
-            for (int i = 1; i <= 8; i++) {
-                for (int j = 1; j <= 8; j++) {
-                    //Can't move to the pos you start at
-                    if (myPosition.getRow() == i && myPosition.getColumn() == j) {
-                        continue;
-                    }
-
-                    ChessPosition newPos = new ChessPosition(i, j);
-                    ChessMove newSpot = new ChessMove(myPosition, newPos, null);
-
-                    //diagonal movement
-                    if ((myPosition.getRow() - i) == myPosition.getColumn() - j) {
-                        moveList.add(newSpot);
-                    }
-                    if ((myPosition.getRow() - i) == -(myPosition.getColumn() - j)) {
+            //top right
+            for(int i = myPosition.getRow()+1;i<=8;i++){
+                for(int j = myPosition.getColumn()+1;j<=8;j++){
+                    if(myPosition.getRow()-i== myPosition.getColumn()-j) {
+                        ChessPosition newPos = new ChessPosition(i, j);
+                        ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         moveList.add(newSpot);
                     }
                 }
-
             }
+            //top left
+            for(int i = myPosition.getRow()+1;i>=0;i--){
+                for(int j = myPosition.getColumn()+1;j<=8;j++){
+                    if(i-myPosition.getRow()== myPosition.getColumn()-j) {
+                        ChessPosition newPos = new ChessPosition(i, j);
+                        ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+                        moveList.add(newSpot);
+                    }
+                }
+            }
+           //bottom right
+            for(int i = myPosition.getRow()+1;i<=8;i++){
+                for(int j = myPosition.getColumn()-1;j>=1;j--){
+                    if(i-myPosition.getRow()== myPosition.getColumn()-j) {
+                        ChessPosition newPos = new ChessPosition(i, j);
+                        ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+                        moveList.add(newSpot);
+                    }
+                }
+            }
+            //bottom left
+            for(int i = myPosition.getRow()+1;i>=1;i--){
+                for(int j = myPosition.getColumn()-1;j>=1;j--){
+                    if(i-myPosition.getRow()== j-myPosition.getColumn()) {
+                        ChessPosition newPos = new ChessPosition(i, j);
+                        ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+                        moveList.add(newSpot);
+                    }
+                }
+            }
+
         }
         //King
         if (piece.getPieceType() == PieceType.KING) {
