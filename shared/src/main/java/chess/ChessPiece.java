@@ -74,9 +74,10 @@ public class ChessPiece {
         //Bishop
         if (piece.getPieceType() == PieceType.BISHOP) {
             //top right
-            topRightLoop: for(int i = myPosition.getRow()+1;i<=8;i++){
-                for(int j = myPosition.getColumn()+1;j<=8;j++){
-                    if(myPosition.getRow()-i== myPosition.getColumn()-j) {
+            topRightLoop:
+            for (int i = myPosition.getRow() + 1; i <= 8; i++) {
+                for (int j = myPosition.getColumn() + 1; j <= 8; j++) {
+                    if (myPosition.getRow() - i == myPosition.getColumn() - j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
@@ -92,9 +93,10 @@ public class ChessPiece {
                 }
             }
             //top left
-            topLeftLoop: for(int i = myPosition.getRow()+1;i>=1;i--){
-                for(int j = myPosition.getColumn()+1;j<=8;j++){
-                    if(i-myPosition.getRow()== myPosition.getColumn()-j) {
+            topLeftLoop:
+            for (int i = myPosition.getRow() + 1; i >= 1; i--) {
+                for (int j = myPosition.getColumn() + 1; j <= 8; j++) {
+                    if (i - myPosition.getRow() == myPosition.getColumn() - j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
@@ -108,10 +110,11 @@ public class ChessPiece {
                     }
                 }
             }
-           //bottom right
-            bottomRightLoop: for(int i = myPosition.getRow()+1;i<=8;i++){
-                for(int j = myPosition.getColumn()-1;j>=1;j--){
-                    if(i-myPosition.getRow()== myPosition.getColumn()-j) {
+            //bottom right
+            bottomRightLoop:
+            for (int i = myPosition.getRow() + 1; i <= 8; i++) {
+                for (int j = myPosition.getColumn() - 1; j >= 1; j--) {
+                    if (i - myPosition.getRow() == myPosition.getColumn() - j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
@@ -126,9 +129,10 @@ public class ChessPiece {
                 }
             }
             //bottom left
-            bottomLeftLoop: for(int i = myPosition.getRow()+1;i>=1;i--){
-                for(int j = myPosition.getColumn()-1;j>=1;j--){
-                    if(i-myPosition.getRow()== j-myPosition.getColumn()) {
+            bottomLeftLoop:
+            for (int i = myPosition.getRow() + 1; i >= 1; i--) {
+                for (int j = myPosition.getColumn() - 1; j >= 1; j--) {
+                    if (i - myPosition.getRow() == j - myPosition.getColumn()) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
@@ -223,6 +227,7 @@ public class ChessPiece {
 
         }
 
+
         //Pawn
         if (piece.getPieceType() == PieceType.PAWN) {
             //Moving forward 1
@@ -234,11 +239,11 @@ public class ChessPiece {
             }
             //Promotion
             boolean currentlyPromoting = false;
-            if(newPos.getRow()==1 ||newPos.getRow()==8) {
-                moveList.add(new ChessMove(myPosition, newPos,PieceType.QUEEN));
-                moveList.add(new ChessMove(myPosition, newPos,PieceType.BISHOP));
-                moveList.add(new ChessMove(myPosition, newPos,PieceType.KNIGHT));
-                moveList.add(new ChessMove(myPosition, newPos,PieceType.ROOK));
+            if (newPos.getRow() == 1 || newPos.getRow() == 8) {
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.QUEEN));
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.BISHOP));
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.KNIGHT));
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.ROOK));
                 currentlyPromoting = true;
             }
 
@@ -265,28 +270,43 @@ public class ChessPiece {
             }
 
             ChessMove newSpotStart = null;
-            if(newPosStart.getRow()<=8&&newPosStart.getRow()>=1&&newPosStart.getColumn()<=8&&newPosStart.getColumn()>=1) {
+            if (newPosStart.getRow() <= 8 && newPosStart.getRow() >= 1 && newPosStart.getColumn() <= 8 && newPosStart.getColumn() >= 1) {
                 newSpotStart = new ChessMove(myPosition, newPosStart, null);
             }
             //move forward 2 if the spaces in front of pawn are empty
-            if (newSpotStart !=null&& board.getPiece(newPosStart) == null && board.getPiece(newPos) == null && isStartingPos) {
+            if (newSpotStart != null && board.getPiece(newPosStart) == null && board.getPiece(newPos) == null && isStartingPos) {
                 moveList.add(newSpotStart);
             }
 
             //Moving Diagonally to capture
             ChessPosition newPos2, newPos3, newPos4, newPos5;
             //white moves diagonally to capture black
+            boolean currentlyPromotingDiagonal = false;
             if (myPosition.getRow() + 1 <= 8 && myPosition.getColumn() + 1 <= 8) {
                 newPos2 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
                 if (board.getPiece(newPos2) != null && board.getPiece(newPos2).getTeamColor() == ChessGame.TeamColor.BLACK) {
-                    moveList.add(new ChessMove(myPosition, newPos2, null));
+                    if (newPos.getRow() == 1 || newPos.getRow() == 8) {
+                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.QUEEN));
+                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.BISHOP));
+                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.KNIGHT));
+                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.ROOK));
+                    } else {
+                        moveList.add(new ChessMove(myPosition, newPos2, null));
+                    }
                 }
             }
 
             if (myPosition.getRow() + 1 <= 8 && myPosition.getColumn() - 1 >= 1) {
                 newPos3 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
                 if (board.getPiece(newPos3) != null && board.getPiece(newPos3).getTeamColor() == ChessGame.TeamColor.BLACK) {
-                    moveList.add(new ChessMove(myPosition, newPos3, null));
+                    if (newPos.getRow() == 1 || newPos.getRow() == 8) {
+                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.QUEEN));
+                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.BISHOP));
+                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.KNIGHT));
+                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.ROOK));
+                    } else {
+                        moveList.add(new ChessMove(myPosition, newPos3, null));
+                    }
                 }
             }
 
@@ -295,13 +315,27 @@ public class ChessPiece {
 
                 newPos4 = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
                 if (board.getPiece(newPos4) != null && board.getPiece(newPos4).getTeamColor() == ChessGame.TeamColor.WHITE) {
-                    moveList.add(new ChessMove(myPosition, newPos4, null));
+                    if (newPos.getRow() == 1 || newPos.getRow() == 8) {
+                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.QUEEN));
+                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.BISHOP));
+                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.KNIGHT));
+                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.ROOK));
+                    } else {
+                        moveList.add(new ChessMove(myPosition, newPos4, null));
+                    }
                 }
             }
             if (myPosition.getRow() - 1 >= 1 && myPosition.getColumn() - 1 >= 1) {
                 newPos5 = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
                 if (board.getPiece(newPos5) != null && board.getPiece(newPos5).getTeamColor() == ChessGame.TeamColor.WHITE) {
-                    moveList.add(new ChessMove(myPosition, newPos5, null));
+                    if (newPos.getRow() == 1 || newPos.getRow() == 8) {
+                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.QUEEN));
+                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.BISHOP));
+                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.KNIGHT));
+                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.ROOK));
+                    } else {
+                        moveList.add(new ChessMove(myPosition, newPos5, null));
+                    }
                 }
             }
         }
@@ -309,9 +343,10 @@ public class ChessPiece {
         if (piece.getPieceType() == PieceType.QUEEN) {
             //Diagonals
             //top right
-            topRightLoop: for(int i = myPosition.getRow()+1;i<=8;i++){
-                for(int j = myPosition.getColumn()+1;j<=8;j++){
-                    if(myPosition.getRow()-i== myPosition.getColumn()-j) {
+            topRightLoop:
+            for (int i = myPosition.getRow() + 1; i <= 8; i++) {
+                for (int j = myPosition.getColumn() + 1; j <= 8; j++) {
+                    if (myPosition.getRow() - i == myPosition.getColumn() - j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
@@ -327,9 +362,10 @@ public class ChessPiece {
                 }
             }
             //top left
-            topLeftLoop: for(int i = myPosition.getRow()+1;i>=1;i--){
-                for(int j = myPosition.getColumn()+1;j<=8;j++){
-                    if(i-myPosition.getRow()== myPosition.getColumn()-j) {
+            topLeftLoop:
+            for (int i = myPosition.getRow() + 1; i >= 1; i--) {
+                for (int j = myPosition.getColumn() + 1; j <= 8; j++) {
+                    if (i - myPosition.getRow() == myPosition.getColumn() - j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
@@ -344,9 +380,10 @@ public class ChessPiece {
                 }
             }
             //bottom right
-            bottomRightLoop: for(int i = myPosition.getRow()+1;i<=8;i++){
-                for(int j = myPosition.getColumn()-1;j>=1;j--){
-                    if(i-myPosition.getRow()== myPosition.getColumn()-j) {
+            bottomRightLoop:
+            for (int i = myPosition.getRow() + 1; i <= 8; i++) {
+                for (int j = myPosition.getColumn() - 1; j >= 1; j--) {
+                    if (i - myPosition.getRow() == myPosition.getColumn() - j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
@@ -361,9 +398,10 @@ public class ChessPiece {
                 }
             }
             //bottom left
-            bottomLeftLoop: for(int i = myPosition.getRow()+1;i>=1;i--){
-                for(int j = myPosition.getColumn()-1;j>=1;j--){
-                    if(i-myPosition.getRow()== j-myPosition.getColumn()) {
+            bottomLeftLoop:
+            for (int i = myPosition.getRow() + 1; i >= 1; i--) {
+                for (int j = myPosition.getColumn() - 1; j >= 1; j--) {
+                    if (i - myPosition.getRow() == j - myPosition.getColumn()) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
                         //leave the loop
