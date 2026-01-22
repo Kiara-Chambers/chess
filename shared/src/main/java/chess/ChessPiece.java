@@ -253,10 +253,13 @@ public class ChessPiece {
                     isStartingPos = true;
                 }
             }
-            ChessMove newSpotStart = new ChessMove(myPosition, newPosStart, null);
 
+            ChessMove newSpotStart = null;
+            if(newPosStart.getRow()<=8&&newPosStart.getRow()>=1&&newPosStart.getColumn()<=8&&newPosStart.getColumn()>=1) {
+                newSpotStart = new ChessMove(myPosition, newPosStart, null);
+            }
             //move forward 2 if the spaces in front of pawn are empty
-            if (board.getPiece(newPosStart) == null && board.getPiece(newPos) == null && isStartingPos) {
+            if (newSpotStart !=null&& board.getPiece(newPosStart) == null && board.getPiece(newPos) == null && isStartingPos) {
                 moveList.add(newSpotStart);
             }
 
