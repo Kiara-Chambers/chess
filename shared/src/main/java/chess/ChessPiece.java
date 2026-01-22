@@ -61,77 +61,78 @@ public class ChessPiece {
         return type;
     }
 
-void addHorizontalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosition,List<ChessMove> moveList){
-    //row move right
-    for (int i = myPosition.getRow() + 1; i <= 8; i++) {
-        ChessPosition newPos = new ChessPosition(i, myPosition.getColumn());
-        ChessMove moveRight = new ChessMove(myPosition, newPos, null);
-        //If the piece is the same color you cant move there
-        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            break;
+    void addHorizontalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosition, List<ChessMove> moveList) {
+        //row move right
+        for (int i = myPosition.getRow() + 1; i <= 8; i++) {
+            ChessPosition newPos = new ChessPosition(i, myPosition.getColumn());
+            ChessMove moveRight = new ChessMove(myPosition, newPos, null);
+            //If the piece is the same color you cant move there
+            if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                break;
+            }
+            //If the piece is a different color, capture, but no more moving that way
+            else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                moveList.add(moveRight);
+                break;
+            } else {
+                moveList.add(moveRight);
+            }
+
         }
-        //If the piece is a different color, capture, but no more moving that way
-        else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            moveList.add(moveRight);
-            break;
-        } else {
-            moveList.add(moveRight);
+        //row move left
+        for (int i = myPosition.getRow() - 1; i >= 1; i--) {
+            ChessPosition newPos = new ChessPosition(i, myPosition.getColumn());
+            ChessMove moveLeft = new ChessMove(myPosition, newPos, null);
+            //If the piece is the same color you cant move there
+            if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                break;
+            }
+            //If the piece is a different color, capture, but no more moving that way
+            else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                moveList.add(moveLeft);
+                break;
+            } else {
+                moveList.add(moveLeft);
+            }
         }
 
-    }
-    //row move left
-    for (int i = myPosition.getRow() - 1; i >= 1; i--) {
-        ChessPosition newPos = new ChessPosition(i, myPosition.getColumn());
-        ChessMove moveLeft = new ChessMove(myPosition, newPos, null);
-        //If the piece is the same color you cant move there
-        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            break;
+        //column move up
+        for (int i = myPosition.getColumn() + 1; i <= 8; i++) {
+
+            ChessPosition newPos = new ChessPosition(myPosition.getRow(), i);
+            ChessMove moveUp = new ChessMove(myPosition, newPos, null);
+            //If the piece is the same color you cant move there
+            if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                break;
+            }
+            //If the piece is a different color, capture, but no more moving that way
+            else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                moveList.add(moveUp);
+                break;
+            } else {
+                moveList.add(moveUp);
+            }
         }
-        //If the piece is a different color, capture, but no more moving that way
-        else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            moveList.add(moveLeft);
-            break;
-        } else {
-            moveList.add(moveLeft);
+
+        //column move down
+        for (int i = myPosition.getColumn() - 1; i >= 1; i--) {
+            ChessPosition newPos = new ChessPosition(myPosition.getRow(), i);
+            ChessMove moveDown = new ChessMove(myPosition, newPos, null);
+            //If the piece is the same color you cant move there
+            if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                break;
+            }
+            //If the piece is a different color, capture, but no more moving that way
+            else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                moveList.add(moveDown);
+                break;
+            } else {
+                moveList.add(moveDown);
+            }
         }
     }
 
-    //column move up
-    for (int i = myPosition.getColumn() + 1; i <= 8; i++) {
-
-        ChessPosition newPos = new ChessPosition(myPosition.getRow(), i);
-        ChessMove moveUp = new ChessMove(myPosition, newPos, null);
-        //If the piece is the same color you cant move there
-        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            break;
-        }
-        //If the piece is a different color, capture, but no more moving that way
-        else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            moveList.add(moveUp);
-            break;
-        } else {
-            moveList.add(moveUp);
-        }
-    }
-
-    //column move down
-    for (int i = myPosition.getColumn() - 1; i >= 1; i--) {
-        ChessPosition newPos = new ChessPosition(myPosition.getRow(), i);
-        ChessMove moveDown = new ChessMove(myPosition, newPos, null);
-        //If the piece is the same color you cant move there
-        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            break;
-        }
-        //If the piece is a different color, capture, but no more moving that way
-        else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
-            moveList.add(moveDown);
-            break;
-        } else {
-            moveList.add(moveDown);
-        }
-    }
-}
-    void addDiagonalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosition,List<ChessMove> moveList){
+    void addDiagonalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosition, List<ChessMove> moveList) {
         //top right
         topRightLoop:
         for (int i = myPosition.getRow() + 1; i <= 8; i++) {
@@ -206,6 +207,7 @@ void addHorizontalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosi
             }
         }
     }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -219,7 +221,7 @@ void addHorizontalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosi
         List<ChessMove> moveList = new ArrayList<>();
         //Bishop
         if (piece.getPieceType() == PieceType.BISHOP) {
-            addDiagonalMoves(piece,board,myPosition,moveList);
+            addDiagonalMoves(piece, board, myPosition, moveList);
         }
         //King
         if (piece.getPieceType() == PieceType.KING) {
@@ -233,7 +235,7 @@ void addHorizontalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosi
 
                     ChessPosition newPos = new ChessPosition(i + myPosition.getRow(), j + myPosition.getColumn());
                     //Can't move off the grid
-                    if (newPos.getColumn() > 8 || newPos.getColumn()<1||newPos.getRow() > 8||newPos.getRow()<1) {
+                    if (newPos.getColumn() > 8 || newPos.getColumn() < 1 || newPos.getRow() > 8 || newPos.getRow() < 1) {
                         continue;
                     }
                     ChessMove newSpot = new ChessMove(myPosition, newPos, null);
@@ -416,8 +418,8 @@ void addHorizontalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosi
         }
         //Queen
         if (piece.getPieceType() == PieceType.QUEEN) {
-            addDiagonalMoves(piece,board,myPosition,moveList);
-            addHorizontalMoves(piece,board,myPosition,moveList);
+            addDiagonalMoves(piece, board, myPosition, moveList);
+            addHorizontalMoves(piece, board, myPosition, moveList);
         }
         //Rook
         if (piece.getPieceType() == PieceType.ROOK) {
