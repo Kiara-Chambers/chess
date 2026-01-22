@@ -124,7 +124,6 @@ public class ChessPiece {
         //Pawn
         if (piece.getPieceType() == PieceType.PAWN) {
             //Moving forward 1
-
             ChessPosition newPos;
             if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
                 newPos = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn());
@@ -138,13 +137,34 @@ public class ChessPiece {
                 moveList.add(newSpot);
             }
 
+            //Moving forward 2 at the start
+            ChessPosition newPosStart;
+            boolean isStartingPos = false;
+            if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
+                newPosStart = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn());
+                if(myPosition.getRow()==2){
+                    isStartingPos = true;
+                }
+            }else{
+                newPosStart = new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn());
+                if(myPosition.getRow()==7){
+                    isStartingPos = true;
+                }
+            }
+            ChessMove newSpotStart = new ChessMove(myPosition, newPosStart, null);
+
+            //move forward 2 if the spaces in front of pawn are empty
+            if(board.getPiece(newPosStart) == null && board.getPiece(newPos)==null&&isStartingPos){
+                moveList.add(newSpotStart);
+            }
+
             //Moving Diagonally to capture
             ChessPosition newPos2, newPos3, newPos4, newPos5;
             //white moves diagonally to capture black
             newPos2 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()+1);
             newPos3 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()-1);
 
-            if((board.getPiece(newPos2)!=null)&&(board.getPiece(newPos2).getTeamColor()== ChessGame.TeamColor.BLACK)){
+            if(board.getPiece(newPos2)!=null&&board.getPiece(newPos2).getTeamColor()== ChessGame.TeamColor.BLACK){
                 moveList.add(new ChessMove(myPosition,newPos2,null));
             }
             if(board.getPiece(newPos3)!=null&&board.getPiece(newPos3).getTeamColor()== ChessGame.TeamColor.BLACK){
