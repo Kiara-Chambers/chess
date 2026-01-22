@@ -74,41 +74,70 @@ public class ChessPiece {
         //Bishop
         if (piece.getPieceType() == PieceType.BISHOP) {
             //top right
-            for(int i = myPosition.getRow()+1;i<=8;i++){
+            topRightLoop: for(int i = myPosition.getRow()+1;i<=8;i++){
                 for(int j = myPosition.getColumn()+1;j<=8;j++){
                     if(myPosition.getRow()-i== myPosition.getColumn()-j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+                        //leave the loop
+                        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            break topRightLoop;
+                        } else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            moveList.add(newSpot);
+                            break topRightLoop;
+                        }
+                        //add moveable spot
                         moveList.add(newSpot);
                     }
                 }
             }
             //top left
-            for(int i = myPosition.getRow()+1;i>=0;i--){
+            topLeftLoop: for(int i = myPosition.getRow()+1;i>=1;i--){
                 for(int j = myPosition.getColumn()+1;j<=8;j++){
                     if(i-myPosition.getRow()== myPosition.getColumn()-j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+                        //leave the loop
+                        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            break topLeftLoop;
+                        } else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            moveList.add(newSpot);
+                            break topLeftLoop;
+                        }
                         moveList.add(newSpot);
                     }
                 }
             }
            //bottom right
-            for(int i = myPosition.getRow()+1;i<=8;i++){
+            bottomRightLoop: for(int i = myPosition.getRow()+1;i<=8;i++){
                 for(int j = myPosition.getColumn()-1;j>=1;j--){
                     if(i-myPosition.getRow()== myPosition.getColumn()-j) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+                        //leave the loop
+                        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            break bottomRightLoop;
+                        } else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            moveList.add(newSpot);
+                            break bottomRightLoop;
+                        }
                         moveList.add(newSpot);
                     }
                 }
             }
             //bottom left
-            for(int i = myPosition.getRow()+1;i>=1;i--){
+            bottomLeftLoop: for(int i = myPosition.getRow()+1;i>=1;i--){
                 for(int j = myPosition.getColumn()-1;j>=1;j--){
                     if(i-myPosition.getRow()== j-myPosition.getColumn()) {
                         ChessPosition newPos = new ChessPosition(i, j);
                         ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+                        //leave the loop
+                        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            break bottomLeftLoop;
+                        } else if (board.getPiece(newPos) != null && !board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())) {
+                            moveList.add(newSpot);
+                            break bottomLeftLoop;
+                        }
                         moveList.add(newSpot);
                     }
                 }
