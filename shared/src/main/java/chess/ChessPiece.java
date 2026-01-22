@@ -232,10 +232,20 @@ public class ChessPiece {
             } else {
                 newPos = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn());
             }
+            //Promotion
+            boolean currentlyPromoting = false;
+            if(newPos.getRow()==1 ||newPos.getRow()==8) {
+                moveList.add(new ChessMove(myPosition, newPos,PieceType.QUEEN));
+                moveList.add(new ChessMove(myPosition, newPos,PieceType.BISHOP));
+                moveList.add(new ChessMove(myPosition, newPos,PieceType.KNIGHT));
+                moveList.add(new ChessMove(myPosition, newPos,PieceType.ROOK));
+                currentlyPromoting = true;
+            }
+
             ChessMove newSpot = new ChessMove(myPosition, newPos, null);
 
             //move forward 1 if the space in front of pawn is empty
-            if (board.getPiece(newPos) == null) {
+            if (board.getPiece(newPos) == null && !currentlyPromoting) {
                 moveList.add(newSpot);
             }
 
