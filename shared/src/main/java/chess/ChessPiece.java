@@ -16,7 +16,7 @@ public class ChessPiece {
     private ChessGame.TeamColor pieceColor;
     private PieceType type;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
     }
@@ -118,15 +118,27 @@ public class ChessPiece {
         }
         //Knight
         if (piece.getPieceType() == PieceType.KNIGHT) {
-            for (int i = 1; i <= 8; i++) {
 
-            }
+
         }
         //Pawn
         if (piece.getPieceType() == PieceType.PAWN) {
-            for (int i = 1; i <= 8; i++) {
+            //Moving forward 1
 
+            ChessPosition newPos;
+            if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
+                newPos = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn());
+            }else{
+                newPos = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn());
             }
+            ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+
+            //move forward 1 if the space in front of pawn is empty
+            if(board.getPiece(newPos) == null){
+                moveList.add(newSpot);
+            }
+
+
         }
         //Queen
         if (piece.getPieceType() == PieceType.QUEEN) {
