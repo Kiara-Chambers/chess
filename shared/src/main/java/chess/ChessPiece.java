@@ -75,20 +75,20 @@ public class ChessPiece {
         if (piece.getPieceType() == PieceType.BISHOP) {
             for (int i = 1; i <= 8; i++) {
                 for (int j = 1; j <= 8; j++) {
+                    //Can't move to the pos you start at
                     if (myPosition.getRow() == i && myPosition.getColumn() == j) {
                         continue;
                     }
+
+                    ChessPosition newPos = new ChessPosition(i, j);
+                    ChessMove newSpot = new ChessMove(myPosition, newPos, null);
+
+                    //diagonal movement
                     if ((myPosition.getRow() - i) == myPosition.getColumn() - j) {
-                        if (board.getPiece(new ChessPosition(i, j)) != null) {
-                            continue;
-                        }
-                        moveList.add(new ChessMove(myPosition, new ChessPosition(i, j), null));
+                        moveList.add(newSpot);
                     }
                     if ((myPosition.getRow() - i) == -(myPosition.getColumn() - j)) {
-                        if (board.getPiece(new ChessPosition(i, j)) != null) {
-                            continue;
-                        }
-                        moveList.add(new ChessMove(myPosition, new ChessPosition(i, j), null));
+                        moveList.add(newSpot);
                     }
                 }
 
@@ -108,7 +108,7 @@ public class ChessPiece {
                         continue;
                     }
                     ChessMove newSpot = new ChessMove(myPosition, newPos, null);
-                    //You can move on top of enemies
+                    //You can't move on top of your own team
                     if(board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor().equals(piece.getTeamColor())){
                         continue;
                     }
