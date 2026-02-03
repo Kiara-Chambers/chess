@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -29,6 +30,20 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         currentTeamColor=team;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return currentTeamColor == chessGame.currentTeamColor && Objects.equals(currentBoard, chessGame.currentBoard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentTeamColor, currentBoard);
     }
 
     /**
@@ -63,7 +78,7 @@ public class ChessGame {
         //If the move is in the piece's possible moves list
         if(piece.pieceMoves(currentBoard,move.getStartPosition()).contains(move)){
             //change the end spot of the move to the piece from the start
-            currentBoard.addPiece(move.getEndPosition(),piece)
+            currentBoard.addPiece(move.getEndPosition(),piece);
             //set the start spot to null
             currentBoard.addPiece(move.getStartPosition(),null);
         }
