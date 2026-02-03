@@ -27,11 +27,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        if(currentTeamColor==TeamColor.WHITE){
-            currentTeamColor=TeamColor.BLACK;
-        }else{
-            currentTeamColor=TeamColor.WHITE;
-        }
+        currentTeamColor=team;
     }
 
     /**
