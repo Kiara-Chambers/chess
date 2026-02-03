@@ -188,7 +188,6 @@ public class ChessPiece {
                         continue;
                     }
 
-
                     ChessPosition newPos = new ChessPosition(i + myPosition.getRow(), j + myPosition.getColumn());
                     //Can't move off the grid
                     if (newPos.getColumn() > 8 || newPos.getColumn() < 1 || newPos.getRow() > 8 || newPos.getRow() < 1) {
