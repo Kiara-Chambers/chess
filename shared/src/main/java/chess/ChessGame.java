@@ -59,12 +59,13 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = currentBoard.getPiece(move.getStartPosition());
+
         //If the move is in the piece's possible moves list
         if(piece.pieceMoves(currentBoard,move.getStartPosition()).contains(move)){
-            //set the end spot of the move to null
             //change the end spot of the move to the piece from the start
+            currentBoard.addPiece(move.getEndPosition(),piece)
             //set the start spot to null
-            //update board
+            currentBoard.addPiece(move.getStartPosition(),null);
         }
     }
 
