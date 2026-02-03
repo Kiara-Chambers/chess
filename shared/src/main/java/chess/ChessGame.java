@@ -76,19 +76,27 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         //piece is the piece at the first part of the attempted move
         ChessPiece piece = currentBoard.getPiece(move.getStartPosition());
+
         if (piece == null) {
             throw new InvalidMoveException();
         }
-        if(currentTeamColor!= piece.getTeamColor()){
+        if (currentTeamColor != piece.getTeamColor()) {
             throw new InvalidMoveException();
         }
 
         //If the move is in the piece's possible moves list
         if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
             //change the end spot of the move to the piece from the start
-            currentBoard.addPiece(move.getEndPosition(), piece);
+            if (move.getPromotionPiece() != null) {
+                currentBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor,move.getPromotionPiece()));
+            } else {
+                currentBoard.addPiece(move.getEndPosition(), piece);
+            }
             //set the start spot to null
             currentBoard.addPiece(move.getStartPosition(), null);
+
+
+            //swap turn
             if (currentTeamColor == TeamColor.WHITE) {
                 setTeamTurn(TeamColor.BLACK);
             } else {
