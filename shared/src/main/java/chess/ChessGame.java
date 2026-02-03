@@ -79,6 +79,9 @@ public class ChessGame {
         if (piece == null) {
             throw new InvalidMoveException();
         }
+        if(currentTeamColor!= piece.getTeamColor()){
+            throw new InvalidMoveException();
+        }
 
         //If the move is in the piece's possible moves list
         if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
