@@ -73,7 +73,11 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        //piece is the piece at the first part of the attempted move
         ChessPiece piece = currentBoard.getPiece(move.getStartPosition());
+        if(piece==null){
+            throw new InvalidMoveException();
+        }
 
         //If the move is in the piece's possible moves list
         if(piece.pieceMoves(currentBoard,move.getStartPosition()).contains(move)){
