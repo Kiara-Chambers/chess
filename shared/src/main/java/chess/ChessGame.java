@@ -47,7 +47,8 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = currentBoard.getPiece(startPosition);
+        return piece.pieceMoves(currentBoard,startPosition);
     }
 
     /**
