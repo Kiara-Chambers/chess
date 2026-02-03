@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -73,9 +75,37 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition);
-        //prevent a king from moving into check
-        if(piece.getPieceType()== ChessPiece.PieceType.KING){
 
+        Collection<ChessMove> moveList = piece.pieceMoves(currentBoard, startPosition);
+
+        //prevent a king from moving into check
+        //TODO - make this actually work...
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            for (ChessMove move :moveList) {
+                //try the move
+                //set up the temp board same as the normal one
+                ChessBoard tempBoard = new ChessBoard(currentBoard);
+                //If the move is in the piece's possible moves list
+                if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
+                    if (move.getPromotionPiece() != null) {
+                        tempBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
+                    } else {
+                        tempBoard.addPiece(move.getEndPosition(), piece);
+                    }
+
+                    //set the start spot to null
+                    tempBoard.addPiece(move.getStartPosition(), null);
+                }
+
+                //test the actual board if it looked like the temp one
+                ChessBoard saved = currentBoard;
+                currentBoard = tempBoard;
+                boolean stillChecked = isInCheck(currentTeamColor);
+                currentBoard = saved;
+                if(stillChecked){
+                    moveList.remove(move);
+                }
+            }
         }
         return piece.pieceMoves(currentBoard, startPosition);
     }
