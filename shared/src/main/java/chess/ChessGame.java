@@ -85,6 +85,8 @@ public class ChessGame {
             currentBoard.addPiece(move.getEndPosition(),piece);
             //set the start spot to null
             currentBoard.addPiece(move.getStartPosition(),null);
+        }else{
+            throw new InvalidMoveException();
         }
     }
 
