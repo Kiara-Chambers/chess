@@ -12,6 +12,7 @@ import java.util.Objects;
 public class ChessGame {
     TeamColor currentTeamColor = TeamColor.WHITE;
     ChessBoard currentBoard = new ChessBoard();
+
     public ChessGame() {
         currentBoard.resetBoard();
     }
@@ -29,7 +30,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        currentTeamColor=team;
+        currentTeamColor = team;
     }
 
     @Override
@@ -63,7 +64,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition);
-        return piece.pieceMoves(currentBoard,startPosition);
+        return piece.pieceMoves(currentBoard, startPosition);
     }
 
     /**
@@ -75,17 +76,22 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         //piece is the piece at the first part of the attempted move
         ChessPiece piece = currentBoard.getPiece(move.getStartPosition());
-        if(piece==null){
+        if (piece == null) {
             throw new InvalidMoveException();
         }
 
         //If the move is in the piece's possible moves list
-        if(piece.pieceMoves(currentBoard,move.getStartPosition()).contains(move)){
+        if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
             //change the end spot of the move to the piece from the start
-            currentBoard.addPiece(move.getEndPosition(),piece);
+            currentBoard.addPiece(move.getEndPosition(), piece);
             //set the start spot to null
-            currentBoard.addPiece(move.getStartPosition(),null);
-        }else{
+            currentBoard.addPiece(move.getStartPosition(), null);
+            if (currentTeamColor == TeamColor.WHITE) {
+                setTeamTurn(TeamColor.BLACK);
+            } else {
+                setTeamTurn(TeamColor.WHITE);
+            }
+        } else {
             throw new InvalidMoveException();
         }
     }
@@ -127,7 +133,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        currentBoard=board;
+        currentBoard = board;
     }
 
     /**
