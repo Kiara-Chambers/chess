@@ -73,6 +73,10 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition);
+        //prevent a king from moving into check
+        if(piece.getPieceType()== ChessPiece.PieceType.KING){
+
+        }
         return piece.pieceMoves(currentBoard, startPosition);
     }
 
