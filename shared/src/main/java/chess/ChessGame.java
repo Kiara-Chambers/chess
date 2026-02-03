@@ -92,9 +92,35 @@ public class ChessGame {
         if (currentTeamColor != piece.getTeamColor()) {
             throw new InvalidMoveException();
         }
-       /* if(isInCheck(currentTeamColor)){
-            throw new InvalidMoveException();
-        }*/
+            //try the move
+            //set up the temp board same as the normal one
+            ChessBoard tempBoard = new ChessBoard(currentBoard);
+            //If the move is in the piece's possible moves list
+            if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
+                //change the end spot of the move to the piece from the start
+                if (move.getPromotionPiece() != null) {
+                    tempBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
+                } else {
+                    tempBoard.addPiece(move.getEndPosition(), piece);
+                }
+                //set the start spot to null
+                tempBoard.addPiece(move.getStartPosition(), null);
+
+                //setTeamTurn(oppositeTeamColor(currentTeamColor));
+            } else {
+                throw new InvalidMoveException();
+            }
+            //if its still in check:
+            ChessBoard saved = currentBoard;
+            currentBoard=tempBoard;
+            boolean stillChecked =isInCheck(currentTeamColor);
+            currentBoard=saved;
+
+            if(stillChecked) {
+                throw new InvalidMoveException();
+            }
+
+
 
         //If the move is in the piece's possible moves list
         if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
@@ -135,7 +161,7 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition piecePosition = new ChessPosition(i, j);
                 ChessPiece piece = currentBoard.getPiece(piecePosition);
-                if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                if (piece !=null &&piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
                     //kingPiece = piece;
                     kingPosition=new ChessPosition(i,j);
                 }
@@ -148,9 +174,9 @@ public class ChessGame {
                 ChessPiece piece = currentBoard.getPiece(piecePosition);
 
                 //check if the piece is on the other team
-                if (piece.getTeamColor() == oppositeTeamColor(currentTeamColor)) {
+                if (piece !=null &&piece.getTeamColor() == oppositeTeamColor(teamColor)) {
                     //check if it can attack the king.
-                    if (kingPosition!=null &&piece.pieceMoves(currentBoard, kingPosition).contains(new ChessMove(piecePosition,kingPosition,null))) {
+                    if (kingPosition!=null &&piece.pieceMoves(currentBoard, piecePosition).contains(new ChessMove(piecePosition,kingPosition,null))) {
                         return true;
                     }
                 }
