@@ -81,12 +81,11 @@ public class ChessGame {
         //prevent a king from moving into check
         //TODO - make this actually work...
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-            for (ChessMove move :moveList) {
+            for (ChessMove move :moveList.toArray(new ChessMove[0])) {
                 //try the move
                 //set up the temp board same as the normal one
                 ChessBoard tempBoard = new ChessBoard(currentBoard);
                 //If the move is in the piece's possible moves list
-                if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
                     if (move.getPromotionPiece() != null) {
                         tempBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
                     } else {
@@ -95,7 +94,7 @@ public class ChessGame {
 
                     //set the start spot to null
                     tempBoard.addPiece(move.getStartPosition(), null);
-                }
+
 
                 //test the actual board if it looked like the temp one
                 ChessBoard saved = currentBoard;
@@ -107,7 +106,7 @@ public class ChessGame {
                 }
             }
         }
-        return piece.pieceMoves(currentBoard, startPosition);
+        return moveList;
     }
 
     /**
