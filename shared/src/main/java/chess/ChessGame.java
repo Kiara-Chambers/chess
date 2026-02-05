@@ -171,34 +171,37 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition piecePosition = new ChessPosition(i, j);
                 ChessPiece piece = currentBoard.getPiece(piecePosition);
-
                 //check if the piece is on the other team
-                if (piece != null && piece.getTeamColor() == oppositeTeamColor(teamColor)) {
+                if (piece != null && piece.getTeamColor() == oppositeTeamColor(teamColor)
+
+                ) {
                     //check if it can attack the king.
                     //stupid pawns
-                    if(piece.getPieceType()== ChessPiece.PieceType.PAWN){
-                        if(piece.getTeamColor()==TeamColor.WHITE &&kingPosition!=null){
-                            ChessPosition diag1 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()-1);
-                            ChessPosition diag2 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()+1);
-                            if(kingPosition.equals(diag1)||kingPosition.equals(diag2)){
-                                return true;
-                            }
-                            continue;
+                    if (piece.getPieceType() == ChessPiece.PieceType.PAWN
+                            && piece.getTeamColor() == TeamColor.WHITE && kingPosition != null
+                    ) {
+                        ChessPosition diag1 = new ChessPosition(piecePosition.getRow() + 1, piecePosition.getColumn() - 1);
+                        ChessPosition diag2 = new ChessPosition(piecePosition.getRow() + 1, piecePosition.getColumn() + 1);
+                        if (kingPosition.equals(diag1) || kingPosition.equals(diag2)) {
+                            return true;
                         }
-                        if(piece.getTeamColor()==TeamColor.BLACK &&kingPosition!=null){
-                            ChessPosition diag1 = new ChessPosition(piecePosition.getRow()-1, piecePosition.getColumn()-1);
-                            ChessPosition diag2 = new ChessPosition(piecePosition.getRow()-1, piecePosition.getColumn()+1);
-                            if(kingPosition.equals(diag1)||kingPosition.equals(diag2)){
-                                return true;
-                            }
-                            continue;
+                        continue;
+                    }
+                    if (piece.getPieceType() == ChessPiece.PieceType.PAWN
+                            && piece.getTeamColor() == TeamColor.BLACK && kingPosition != null
+                    ) {
+                        ChessPosition diag1 = new ChessPosition(piecePosition.getRow() - 1, piecePosition.getColumn() - 1);
+                        ChessPosition diag2 = new ChessPosition(piecePosition.getRow() - 1, piecePosition.getColumn() + 1);
+                        if (kingPosition.equals(diag1) || kingPosition.equals(diag2)) {
+                            return true;
                         }
+                        continue;
                     }
 
                     //normal piece that work normally without confusing me at all
 
-                    for(ChessMove move :piece.pieceMoves(currentBoard,piecePosition)){
-                        if(move.getEndPosition().equals(kingPosition)){
+                    for (ChessMove move : piece.pieceMoves(currentBoard, piecePosition)) {
+                        if (move.getEndPosition().equals(kingPosition)) {
                             return true;
                         }
                     }
