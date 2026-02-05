@@ -83,6 +83,7 @@ public class ChessGame {
         tempBoard.addPiece(move.getStartPosition(), null);
         return tempBoard;
     }
+
     private boolean kingIsLeftInCheck(ChessMove move){
         ChessBoard saved = currentBoard;
         currentBoard = boardAfterMoving(currentBoard,move);
@@ -101,7 +102,12 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition);
         Collection<ChessMove> moveList = piece.pieceMoves(currentBoard, startPosition);
-
+        //can't move if it places king in check
+        for(ChessMove move : moveList.toArray(new ChessMove[0])) {
+            if (kingIsLeftInCheck(move)) {
+                moveList.remove(move);
+            }
+        }
         //prevent a king from moving into check
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             for (ChessMove move : moveList.toArray(new ChessMove[0])) {
