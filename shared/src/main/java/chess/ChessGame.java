@@ -76,7 +76,7 @@ public class ChessGame {
         if (move.getPromotionPiece() != null) {
             tempBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         } else {
-            tempBoard.addPiece(move.getEndPosition(), piece);
+            tempBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
         }
 
         //set the start spot to null
@@ -105,6 +105,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition);
+        if (piece == null) {
+            return null;
+        }
         Collection<ChessMove> moveList = piece.pieceMoves(currentBoard, startPosition);
 
         //can't move if it places king in check
@@ -159,7 +162,6 @@ public class ChessGame {
                 ChessPosition piecePosition = new ChessPosition(i, j);
                 ChessPiece piece = currentBoard.getPiece(piecePosition);
                 if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                    //kingPiece = piece;
                     kingPosition = new ChessPosition(i, j);
                 }
             }
@@ -173,8 +175,32 @@ public class ChessGame {
                 //check if the piece is on the other team
                 if (piece != null && piece.getTeamColor() == oppositeTeamColor(teamColor)) {
                     //check if it can attack the king.
-                    if (kingPosition != null && piece.pieceMoves(currentBoard, piecePosition).contains(new ChessMove(piecePosition, kingPosition, null))) {
-                        return true;
+                    //stupid pawns
+                    if(piece.getPieceType()== ChessPiece.PieceType.PAWN){
+                        if(piece.getTeamColor()==TeamColor.WHITE &&kingPosition!=null){
+                            ChessPosition diag1 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()-1);
+                            ChessPosition diag2 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()+1);
+                            if(kingPosition.equals(diag1)||kingPosition.equals(diag2)){
+                                return true;
+                            }
+                            continue;
+                        }
+                        if(piece.getTeamColor()==TeamColor.BLACK &&kingPosition!=null){
+                            ChessPosition diag1 = new ChessPosition(piecePosition.getRow()-1, piecePosition.getColumn()-1);
+                            ChessPosition diag2 = new ChessPosition(piecePosition.getRow()-1, piecePosition.getColumn()+1);
+                            if(kingPosition.equals(diag1)||kingPosition.equals(diag2)){
+                                return true;
+                            }
+                            continue;
+                        }
+                    }
+
+                    //normal piece that work normally without confusing me at all
+
+                    for(ChessMove move :piece.pieceMoves(currentBoard,piecePosition)){
+                        if(move.getEndPosition().equals(kingPosition)){
+                            return true;
+                        }
                     }
                 }
             }
@@ -197,17 +223,12 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition currentPos = new ChessPosition(i, j);
                 ChessPiece piece = currentBoard.getPiece(currentPos);
-                if (piece.getTeamColor() == teamColor) {
-                    for (ChessMove newMove : piece.pieceMoves(currentBoard, currentPos)) {
-                        try {
-                            makeMove(newMove);
-                            if (!isInCheck(teamColor)) {
-                                return false;
-                            }
-                        } catch (InvalidMoveException ex) {
-
-                        }
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(currentPos);
+                    if (moves != null && !moves.isEmpty()) {
+                        return false;
                     }
+
                 }
             }
         }
@@ -223,7 +244,21 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                ChessPiece piece = currentBoard.getPiece(pos);
+                if (piece != null && piece.getTeamColor() == teamColor && !validMoves(pos).isEmpty()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
