@@ -66,7 +66,7 @@ public class ChessGame {
         }
     }
 
-    public ChessBoard boardAfterMoving(ChessBoard board, ChessMove move){
+    public ChessBoard boardAfterMoving(ChessBoard board, ChessMove move) {
         //try the move
         //set up the temp board same as the normal one
         ChessBoard tempBoard = new ChessBoard(board);
@@ -74,7 +74,7 @@ public class ChessGame {
 
         //If the move is in the piece's possible moves list
         if (move.getPromotionPiece() != null) {
-            tempBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
+            tempBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         } else {
             tempBoard.addPiece(move.getEndPosition(), piece);
         }
@@ -84,11 +84,15 @@ public class ChessGame {
         return tempBoard;
     }
 
-    private boolean kingIsLeftInCheck(ChessMove move){
-        ChessBoard saved = currentBoard;
-        currentBoard = boardAfterMoving(currentBoard,move);
-        boolean stillChecked = isInCheck(currentTeamColor);
-        currentBoard = saved;
+    private boolean kingIsLeftInCheck(ChessMove move) {
+        ChessBoard savedBoard = currentBoard;
+
+        ChessPiece piece = savedBoard.getPiece(move.getStartPosition());
+        currentBoard = boardAfterMoving(currentBoard, move);
+
+        boolean stillChecked = isInCheck(piece.getTeamColor());
+
+        currentBoard = savedBoard;
         return stillChecked;
     }
 
@@ -102,20 +106,14 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition);
         Collection<ChessMove> moveList = piece.pieceMoves(currentBoard, startPosition);
+
         //can't move if it places king in check
-        for(ChessMove move : moveList.toArray(new ChessMove[0])) {
+        for (ChessMove move : moveList.toArray(new ChessMove[0])) {
             if (kingIsLeftInCheck(move)) {
                 moveList.remove(move);
             }
         }
-        //prevent a king from moving into check
-        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-            for (ChessMove move : moveList.toArray(new ChessMove[0])) {
-                if (kingIsLeftInCheck(move)) {
-                    moveList.remove(move);
-                }
-            }
-        }
+
         return moveList;
     }
 
@@ -135,13 +133,13 @@ public class ChessGame {
         if (currentTeamColor != piece.getTeamColor()) {
             throw new InvalidMoveException();
         }
-        if(!piece.pieceMoves(currentBoard,move.getStartPosition()).contains(move)){
+        if (!piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
             throw new InvalidMoveException();
         }
-        if(kingIsLeftInCheck(move)){
+        if (kingIsLeftInCheck(move)) {
             throw new InvalidMoveException();
         }
-        currentBoard=boardAfterMoving(currentBoard,move);
+        currentBoard = boardAfterMoving(currentBoard, move);
         setTeamTurn(oppositeTeamColor(currentTeamColor));
 
     }
