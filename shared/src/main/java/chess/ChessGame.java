@@ -129,52 +129,15 @@ public class ChessGame {
         if (currentTeamColor != piece.getTeamColor()) {
             throw new InvalidMoveException();
         }
-
-        //try the move
-        //set up the temp board same as the normal one
-        ChessBoard tempBoard = new ChessBoard(currentBoard);
-        //If the move is in the piece's possible moves list
-        if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
-            if (move.getPromotionPiece() != null) {
-                tempBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
-            } else {
-                tempBoard.addPiece(move.getEndPosition(), piece);
-            }
-
-            //set the start spot to null
-            tempBoard.addPiece(move.getStartPosition(), null);
-
-        } else {
+        if(!piece.pieceMoves(currentBoard,move.getStartPosition()).contains(move)){
             throw new InvalidMoveException();
         }
-
-        //test the actual board if it looked like the temp one
-        ChessBoard saved = currentBoard;
-        currentBoard = tempBoard;
-        boolean stillChecked = isInCheck(currentTeamColor);
-        currentBoard = saved;
-
-        //if it's still in check:
-        if (stillChecked) {
+        if(kingIsLeftInCheck(move)){
             throw new InvalidMoveException();
         }
+        currentBoard=boardAfterMoving(currentBoard,move);
+        setTeamTurn(oppositeTeamColor(currentTeamColor));
 
-
-        //If the move is in the piece's possible moves list
-        if (piece.pieceMoves(currentBoard, move.getStartPosition()).contains(move)) {
-            //change the end spot of the move to the piece from the start
-            if (move.getPromotionPiece() != null) {
-                currentBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
-            } else {
-                currentBoard.addPiece(move.getEndPosition(), piece);
-            }
-            //set the start spot to null
-            currentBoard.addPiece(move.getStartPosition(), null);
-
-            setTeamTurn(oppositeTeamColor(currentTeamColor));
-        } else {
-            throw new InvalidMoveException();
-        }
     }
 
     /**
