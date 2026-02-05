@@ -66,6 +66,31 @@ public class ChessGame {
         }
     }
 
+    public ChessBoard boardAfterMoving(ChessBoard board, ChessMove move){
+        //try the move
+        //set up the temp board same as the normal one
+        ChessBoard tempBoard = new ChessBoard(board);
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+
+        //If the move is in the piece's possible moves list
+        if (move.getPromotionPiece() != null) {
+            tempBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
+        } else {
+            tempBoard.addPiece(move.getEndPosition(), piece);
+        }
+
+        //set the start spot to null
+        tempBoard.addPiece(move.getStartPosition(), null);
+        return tempBoard;
+    }
+    private boolean kingIsLeftInCheck(ChessMove move){
+        ChessBoard saved = currentBoard;
+        currentBoard = boardAfterMoving(currentBoard,move);
+        boolean stillChecked = isInCheck(currentTeamColor);
+        currentBoard = saved;
+        return stillChecked;
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -75,31 +100,12 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition);
-
         Collection<ChessMove> moveList = piece.pieceMoves(currentBoard, startPosition);
 
         //prevent a king from moving into check
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
             for (ChessMove move : moveList.toArray(new ChessMove[0])) {
-                //try the move
-                //set up the temp board same as the normal one
-                ChessBoard tempBoard = new ChessBoard(currentBoard);
-                //If the move is in the piece's possible moves list
-                if (move.getPromotionPiece() != null) {
-                    tempBoard.addPiece(move.getEndPosition(), new ChessPiece(currentTeamColor, move.getPromotionPiece()));
-                } else {
-                    tempBoard.addPiece(move.getEndPosition(), piece);
-                }
-
-                //set the start spot to null
-                tempBoard.addPiece(move.getStartPosition(), null);
-
-                //test the actual board if it looked like the temp one
-                ChessBoard saved = currentBoard;
-                currentBoard = tempBoard;
-                boolean stillChecked = isInCheck(currentTeamColor);
-                currentBoard = saved;
-                if (stillChecked) {
+                if (kingIsLeftInCheck(move)) {
                     moveList.remove(move);
                 }
             }
