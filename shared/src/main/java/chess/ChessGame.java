@@ -196,8 +196,11 @@ public class ChessGame {
                     }
 
                     //normal piece that work normally without confusing me at all
-                    if (kingPosition != null && piece.pieceMoves(currentBoard, piecePosition).contains(new ChessMove(piecePosition, kingPosition, null))) {
-                        return true;
+
+                    for(ChessMove move :piece.pieceMoves(currentBoard,piecePosition)){
+                        if(move.getEndPosition().equals(kingPosition)){
+                            return true;
+                        }
                     }
                 }
             }
