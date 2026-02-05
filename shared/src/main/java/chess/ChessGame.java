@@ -162,7 +162,6 @@ public class ChessGame {
                 ChessPosition piecePosition = new ChessPosition(i, j);
                 ChessPiece piece = currentBoard.getPiece(piecePosition);
                 if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
-                    //kingPiece = piece;
                     kingPosition = new ChessPosition(i, j);
                 }
             }
@@ -178,9 +177,17 @@ public class ChessGame {
                     //check if it can attack the king.
                     //stupid pawns
                     if(piece.getPieceType()== ChessPiece.PieceType.PAWN){
-                        if(piece.getTeamColor()==TeamColor.WHITE){
+                        if(piece.getTeamColor()==TeamColor.WHITE &&kingPosition!=null){
                             ChessPosition diag1 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()-1);
                             ChessPosition diag2 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()+1);
+                            if(kingPosition.equals(diag1)||kingPosition.equals(diag2)){
+                                return true;
+                            }
+                            continue;
+                        }
+                        if(piece.getTeamColor()==TeamColor.BLACK &&kingPosition!=null){
+                            ChessPosition diag1 = new ChessPosition(piecePosition.getRow()-1, piecePosition.getColumn()-1);
+                            ChessPosition diag2 = new ChessPosition(piecePosition.getRow()-1, piecePosition.getColumn()+1);
                             if(kingPosition.equals(diag1)||kingPosition.equals(diag2)){
                                 return true;
                             }
@@ -218,12 +225,7 @@ public class ChessGame {
                     if (moves != null && !moves.isEmpty()) {
                         return false;
                     }
-                    /*for (ChessMove newMove : piece.pieceMoves(currentBoard, currentPos)) {
-                        if (!kingIsLeftInCheck(newMove)) {
-                            return false;
-                        }
 
-                    }*/
                 }
             }
         }
