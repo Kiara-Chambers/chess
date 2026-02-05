@@ -176,6 +176,19 @@ public class ChessGame {
                 //check if the piece is on the other team
                 if (piece != null && piece.getTeamColor() == oppositeTeamColor(teamColor)) {
                     //check if it can attack the king.
+                    //stupid pawns
+                    if(piece.getPieceType()== ChessPiece.PieceType.PAWN){
+                        if(piece.getTeamColor()==TeamColor.WHITE){
+                            ChessPosition diag1 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()-1);
+                            ChessPosition diag2 = new ChessPosition(piecePosition.getRow()+1, piecePosition.getColumn()+1);
+                            if(kingPosition.equals(diag1)||kingPosition.equals(diag2)){
+                                return true;
+                            }
+                            continue;
+                        }
+                    }
+
+                    //normal piece that work normally without confusing me at all
                     if (kingPosition != null && piece.pieceMoves(currentBoard, piecePosition).contains(new ChessMove(piecePosition, kingPosition, null))) {
                         return true;
                     }
