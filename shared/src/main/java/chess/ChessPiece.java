@@ -84,6 +84,19 @@ public class ChessPiece {
         }
     }
 
+    void tryPawnCapture(ChessPiece piece, ChessBoard board, ChessPosition myPosition, List<ChessMove> moveList, ChessPosition newPos){
+        if (board.getPiece(newPos) != null && board.getPiece(newPos).getTeamColor() != piece.getTeamColor()) {
+            if (newPos.getRow() == 1 || newPos.getRow() == 8) {
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.QUEEN));
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.BISHOP));
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.KNIGHT));
+                moveList.add(new ChessMove(myPosition, newPos, PieceType.ROOK));
+            } else {
+                moveList.add(new ChessMove(myPosition, newPos, null));
+            }
+        }
+    }
+
     void addPawnDiagonalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosition, List<ChessMove> moveList) {
         //Moving Diagonally to capture
         ChessPosition newPos2, newPos3, newPos4, newPos5;
@@ -92,30 +105,13 @@ public class ChessPiece {
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             if (myPosition.getRow() + 1 <= 8 && myPosition.getColumn() + 1 <= 8) {
                 newPos2 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
-                if (board.getPiece(newPos2) != null && board.getPiece(newPos2).getTeamColor() != piece.getTeamColor()) {
-                    if (newPos2.getRow() == 1 || newPos2.getRow() == 8) {
-                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.QUEEN));
-                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.BISHOP));
-                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.KNIGHT));
-                        moveList.add(new ChessMove(myPosition, newPos2, PieceType.ROOK));
-                    } else {
-                        moveList.add(new ChessMove(myPosition, newPos2, null));
-                    }
-                }
+                tryPawnCapture(piece, board, myPosition,moveList,newPos2);
             }
 
             if (myPosition.getRow() + 1 <= 8 && myPosition.getColumn() - 1 >= 1) {
                 newPos3 = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
-                if (board.getPiece(newPos3) != null && board.getPiece(newPos3).getTeamColor() != piece.getTeamColor()) {
-                    if (newPos3.getRow() == 1 || newPos3.getRow() == 8) {
-                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.QUEEN));
-                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.BISHOP));
-                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.KNIGHT));
-                        moveList.add(new ChessMove(myPosition, newPos3, PieceType.ROOK));
-                    } else {
-                        moveList.add(new ChessMove(myPosition, newPos3, null));
-                    }
-                }
+                tryPawnCapture(piece, board, myPosition,moveList,newPos3);
+
             }
         }
 
@@ -123,29 +119,12 @@ public class ChessPiece {
         if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
             if (myPosition.getRow() - 1 >= 1 && myPosition.getColumn() + 1 <= 8) {
                 newPos4 = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
-                if (board.getPiece(newPos4) != null && board.getPiece(newPos4).getTeamColor() != piece.getTeamColor()) {
-                    if (newPos4.getRow() == 1 || newPos4.getRow() == 8) {
-                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.QUEEN));
-                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.BISHOP));
-                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.KNIGHT));
-                        moveList.add(new ChessMove(myPosition, newPos4, PieceType.ROOK));
-                    } else {
-                        moveList.add(new ChessMove(myPosition, newPos4, null));
-                    }
-                }
+                tryPawnCapture(piece, board, myPosition,moveList,newPos4);
+
             }
             if (myPosition.getRow() - 1 >= 1 && myPosition.getColumn() - 1 >= 1) {
                 newPos5 = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
-                if (board.getPiece(newPos5) != null && board.getPiece(newPos5).getTeamColor() != piece.getTeamColor()) {
-                    if (newPos5.getRow() == 1 || newPos5.getRow() == 8) {
-                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.QUEEN));
-                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.BISHOP));
-                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.KNIGHT));
-                        moveList.add(new ChessMove(myPosition, newPos5, PieceType.ROOK));
-                    } else {
-                        moveList.add(new ChessMove(myPosition, newPos5, null));
-                    }
-                }
+                tryPawnCapture(piece, board, myPosition,moveList,newPos5);
             }
         }
     }
