@@ -84,6 +84,10 @@ public class ChessPiece {
         }
     }
 
+    void addPawnDiagonalMove(ChessPiece piece, ChessBoard board, ChessPosition myPosition, List<ChessMove> moveList){
+
+    }
+
     void addPawnDiagonalMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosition, List<ChessMove> moveList) {
         //Moving Diagonally to capture
         ChessPosition newPos2, newPos3, newPos4, newPos5;
