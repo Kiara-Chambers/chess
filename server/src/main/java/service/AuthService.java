@@ -1,8 +1,10 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 
 public class AuthService {
     MemoryUserDAO userDAO;
@@ -13,8 +15,10 @@ public class AuthService {
         this.authDAO = authDAO;
     }
 
-    public String register(String username, String password, String email){
-
+    public String register(String username, String password, String email) throws DataAccessException {
+        UserData user = new UserData(username,password,email);
+        userDAO.createUser(user);
+        return authDAO.createAuth(user);
     }
     public String login(){}
     public void logout(){}

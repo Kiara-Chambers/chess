@@ -10,10 +10,10 @@ public class MemoryUserDAO {
     public void clear() throws DataAccessException{
         users.clear();
     }
-    void createUser(UserData u) throws DataAccessException{
+    public void createUser(UserData u) throws DataAccessException{
 
     }
-    void getUser(UserData u) throws DataAccessException{
+    public void getUser(UserData u) throws DataAccessException{
 
     }
 
