@@ -4,19 +4,26 @@ import model.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MemoryAuthDAO {
-    Map<String,UserData> authTokens = new HashMap<>();
-    public void clear() throws DataAccessException{
+    Map<String, UserData> authTokens = new HashMap<>();
+
+    public void clear() throws DataAccessException {
         authTokens.clear();
     }
-    void createAuth(UserData u) throws DataAccessException{
 
+    public String createAuth(UserData user) throws DataAccessException {
+        String token = UUID.randomUUID().toString();
+        authTokens.put(token, user);
+        return token;
     }
-    void getAuth(UserData u) throws DataAccessException{
 
+    public UserData getAuth(String token) throws DataAccessException {
+        return authTokens.get(token);
     }
-    void deleteAuth(UserData u) throws DataAccessException{
 
+    public void deleteAuth(String token) throws DataAccessException {
+        authTokens.remove(token);
     }
 }
