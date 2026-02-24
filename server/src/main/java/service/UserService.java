@@ -1,9 +1,9 @@
 package service;
 
 public class UserService {
-    public RegisterResult register(RegisterRequest registerRequest) {}
+   /* public RegisterResult register(RegisterRequest registerRequest) {}
     public LoginResult login(LoginRequest loginRequest) {}
-    public void logout(LogoutRequest logoutRequest) {}
+    public void logout(LogoutRequest logoutRequest) {}*/
 }
 record LoginRequest(
         String username,
