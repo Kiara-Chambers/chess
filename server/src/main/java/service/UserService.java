@@ -5,7 +5,7 @@ public class UserService {
     public LoginResult login(LoginRequest loginRequest) {}
     public void logout(LogoutRequest logoutRequest) {}*/
 }
-record LoginRequest(
+/*record LoginRequest(
         String username,
         String password){
 }
@@ -14,4 +14,4 @@ record UserData(
         String password,
         String email){
 }
-record LoginResult(String username, String authToken) {}
+record LoginResult(String username, String authToken) {}*/
