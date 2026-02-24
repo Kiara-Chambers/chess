@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.UserData;
 
-public class gameDAO {
+public class MemoryGameDAO {
     void createGame(UserData u) throws DataAccessException{
 
     }

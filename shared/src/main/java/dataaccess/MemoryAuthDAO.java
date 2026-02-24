@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.UserData;
 
-public class authDAO {
+public class MemoryAuthDAO {
     void createAuth(UserData u) throws DataAccessException{
 
     }
