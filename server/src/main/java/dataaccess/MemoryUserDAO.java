@@ -13,8 +13,9 @@ public class MemoryUserDAO {
     public void createUser(UserData u) throws DataAccessException{
 
     }
-    public void getUser(UserData u) throws DataAccessException{
+    public UserData getUser(String u) throws DataAccessException{
 
+        return null;
     }
 
 }
