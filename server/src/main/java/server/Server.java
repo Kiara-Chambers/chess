@@ -4,52 +4,49 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import io.javalin.*;
+import service.AuthService;
 import service.ClearService;
+
+import javax.security.sasl.AuthorizeCallback;
 
 public class Server {
 
     private final Javalin javalin;
+    AuthService authService;
+
 
     public Server() {
+     /*   MemoryUserDAO userDAO = new MemoryUserDAO();
+        MemoryAuthDAO authDAO = new MemoryAuthDAO();
+        this.authService = new AuthService(userDAO,authDAO);
+*/
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
-        var clearService = new ClearService(new MemoryUserDAO(),new MemoryAuthDAO(), new MemoryGameDAO());
-        javalin.delete("/db",ctx->{
-            clearService.clear();
-            ctx.status(200);
-            ctx.json(new java.util.HashMap<>());
-        });
+        //var clearService = new ClearService(new MemoryUserDAO(),new MemoryAuthDAO(), new MemoryGameDAO());
+        javalin.post("/user",this::registerHandler);
+        javalin.post("/session",this::loginHandler);
+        javalin.delete("/session",this::logoutHandler);
 
-        //TODO - make these actually do something
-        javalin.post("/user",ctx->{
-            ctx.status(200);
-            ctx.json(new java.util.HashMap<>());
-        });
-
-        javalin.post("/session",ctx->{
-            ctx.status(200);
-            ctx.json(new java.util.HashMap<>());
-        });
-        javalin.delete("/session",ctx->{
-            ctx.status(200);
-            ctx.json(new java.util.HashMap<>());
-        });
-
-        javalin.get("/game",ctx->{
-            ctx.status(200);
-            ctx.json(new java.util.HashMap<>());
-        });
-        javalin.post("/game",ctx->{
-            ctx.status(200);
-            ctx.json(new java.util.HashMap<>());
-        });
-        javalin.delete("/game",ctx->{
-            ctx.status(200);
-            ctx.json(new java.util.HashMap<>());
-        });
 
     }
+
+    private void registerHandler(Context ctx){
+        /*if (authorized(ctx)) {
+            names.add(ctx.pathParam("name"));
+            listNames(ctx);
+        }*/
+    }
+
+    private void loginHandler(Context ctx){
+
+    }
+
+    private void logoutHandler(Context ctx){
+
+    }
+
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
