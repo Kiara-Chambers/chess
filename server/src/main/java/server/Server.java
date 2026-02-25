@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.*;
@@ -132,11 +133,11 @@ public class Server {
         try {
 
             String authToken = context.header("Authorization");
-            UserData user  = authDAO.getAuth(authToken);
+            List<ChessGame> games  = gameService.listGames(authToken);
 
             context.status(200);
             context.contentType("application/json");
-            context.result(Map.of("games",gameService.listGames()).toString());
+            context.result(gson.toJson(Map.of("games",games)));
         } catch (UnauthorizedResponse e) {
             context.status(401);
             context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
