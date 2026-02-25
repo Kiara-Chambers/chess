@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
@@ -9,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
+
+import java.util.Map;
 
 public class Server {
 
@@ -47,6 +50,14 @@ public class Server {
     }
 
     private void clearHandler(@NotNull Context context) {
+        try {
+            clearService.clear();
+            context.status(200);
+            context.json(Map.of());
+        } catch (DataAccessException e) {
+            context.status(500);
+            context.json(Map.of("message", "Error:" + e.getMessage()));
+        }
     }
 
     private void joinGameHandler(@NotNull Context context) {
