@@ -8,6 +8,7 @@ import dataaccess.MemoryUserDAO;
 import io.javalin.*;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
+import io.javalin.http.UnauthorizedResponse;
 import model.UserData;
 import org.jetbrains.annotations.NotNull;
 import service.ClearService;
@@ -89,6 +90,28 @@ public class Server {
     }
 
     private void loginHandler(@NotNull Context context) {
+        try {
+            UserData newUser = new Gson().fromJson(context.body(), UserData.class);
+
+            String authToken = userService.login(newUser);
+
+            context.status(200);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("username", newUser.username(),"password", newUser.password())));
+        }
+        catch(BadRequestResponse e){
+            context.status(400);
+            context.result(gson.toJson(Map.of("message", "Error: bad request")));
+        }
+        catch( UnauthorizedResponse e){
+            context.status(401);
+            context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
+        }
+        catch (Exception e) {
+            context.status(500);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
 
     private void logoutHandler(@NotNull Context context) {

@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import io.javalin.http.BadRequestResponse;
+import io.javalin.http.UnauthorizedResponse;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 
@@ -30,6 +31,20 @@ public class UserService {
         userDAO.createUser(user);
         return authDAO.createAuth(user);
     }
-   /* public void login( loginRequest) {}
-    public void logout( logoutRequest) {}*/
+    public String login(UserData user) throws DataAccessException {
+        //bad request -> 400
+        if (user.username() == null ||
+                user.password() == null) {
+            throw new BadRequestResponse();
+        }
+        //unathorized -> 401
+        UserData data = userDAO.getUser(user.username());
+
+        if(data==null){
+            throw new UnauthorizedResponse();
+        }
+
+        return authDAO.createAuth(data);
+    }
+   /* public void logout( logoutRequest) {}*/
 }
