@@ -1,9 +1,29 @@
 package service;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
+import chess.ChessGame;
+import dataaccess.*;
+
+import java.util.List;
 
 public class GameService {
-    public GameService(MemoryGameDAO gameDAO, MemoryAuthDAO authDAO) {
+    GameDAO gameDAO;
+    AuthDAO authDAO;
+
+    public GameService(GameDAO gameDAO,AuthDAO authDAO) {
+        this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
+    }
+
+    public List<ChessGame> listGames() {
+
+        return List.of();
+    }
+
+    public void createGame() {
+
+    }
+
+    public void joinGame() {
+
     }
 }

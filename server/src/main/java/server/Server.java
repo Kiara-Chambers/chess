@@ -1,10 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
@@ -15,19 +12,24 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
+import java.util.List;
 import java.util.Map;
 
 public class Server {
     private final Gson gson = new Gson();
     private final Javalin javalin;
+
     UserService userService;
     GameService gameService;
     ClearService clearService;
 
+    AuthDAO authDAO;
+
+
     public Server() {
         var userDAO = new MemoryUserDAO();
         var gameDAO = new MemoryGameDAO();
-        var authDAO = new MemoryAuthDAO();
+        this.authDAO = new MemoryAuthDAO();
 
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
@@ -127,6 +129,22 @@ public class Server {
     }
 
     private void listGamesHandler(@NotNull Context context) {
+        try {
+
+            String authToken = context.header("Authorization");
+            UserData user  = authDAO.getAuth(authToken);
+
+            context.status(200);
+            context.contentType("application/json");
+            context.result(Map.of("games",gameService.listGames()).toString());
+        } catch (UnauthorizedResponse e) {
+            context.status(401);
+            context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
+        } catch (Exception e) {
+            context.status(500);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
 
     private void createGameHandler(@NotNull Context context) {
