@@ -4,49 +4,42 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import io.javalin.*;
-import service.AuthService;
+import io.javalin.http.Context;
+import org.jetbrains.annotations.NotNull;
 import service.ClearService;
-
-import javax.security.sasl.AuthorizeCallback;
+import service.GameService;
+import service.UserService;
 
 public class Server {
 
     private final Javalin javalin;
-    AuthService authService;
 
 
     public Server() {
-     /*   MemoryUserDAO userDAO = new MemoryUserDAO();
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
-        this.authService = new AuthService(userDAO,authDAO);
-*/
+        var userDAO = new MemoryUserDAO();
+        var gameDAO = new MemoryGameDAO();
+        var authDAO = new MemoryAuthDAO();
+
+        UserService userService= new UserService(userDAO,authDAO);
+        GameService gameService = new GameService(gameDAO, authDAO);
+        ClearService clearService = new ClearService(userDAO,authDAO,gameDAO);
+
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
-        //var clearService = new ClearService(new MemoryUserDAO(),new MemoryAuthDAO(), new MemoryGameDAO());
         javalin.post("/user",this::registerHandler);
+
         javalin.post("/session",this::loginHandler);
         javalin.delete("/session",this::logoutHandler);
 
+        javalin.get("/game",this::listGamesHandler);
+        javalin.put("/game",this::joinGameHandler);
+        javalin.post("/game",this::joinGameHandler);
+
+        javalin.delete("/db",this::clearHandler);
 
     }
-
-    private void registerHandler(Context ctx){
-        /*if (authorized(ctx)) {
-            names.add(ctx.pathParam("name"));
-            listNames(ctx);
-        }*/
-    }
-
-    private void loginHandler(Context ctx){
-
-    }
-
-    private void logoutHandler(Context ctx){
-
-    }
-
 
     public int run(int desiredPort) {
         javalin.start(desiredPort);
@@ -56,4 +49,5 @@ public class Server {
     public void stop() {
         javalin.stop();
     }
+
 }
