@@ -6,6 +6,7 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import io.javalin.*;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import model.UserData;
 import org.jetbrains.annotations.NotNull;
@@ -72,11 +73,11 @@ public class Server {
             context.contentType("application/json");
             context.result(gson.toJson(Map.of("username", newUser.username(),"authToken",authToken)));
         }
-        catch(IllegalArgumentException e){
+        catch(BadRequestResponse e){
             context.status(400);
             context.result(gson.toJson(Map.of("message", "Error: bad request")));
         }
-        catch(RuntimeException e){
+        catch(IllegalStateException e){
             context.status(403);
             context.result(gson.toJson(Map.of("message", "Error: already taken")));
         }
