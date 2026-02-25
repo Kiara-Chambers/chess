@@ -51,7 +51,8 @@ public class UserService {
     }
 
     public void logout(String authToken) {
-        if (authToken==null) {
+        //unauthorized -> 401
+        if (authDAO.getAuth(authToken) == null || authToken == null) {
             throw new UnauthorizedResponse();
         }
         authDAO.deleteAuth(authToken);

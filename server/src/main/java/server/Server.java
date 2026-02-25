@@ -110,9 +110,7 @@ public class Server {
 
     private void logoutHandler(@NotNull Context context) {
         try {
-           // UserData newUser = new Gson().fromJson(context.body(), UserData.class);
             String authToken = context.header("Authorization");
-
             userService.logout(authToken);
 
             context.status(200);
