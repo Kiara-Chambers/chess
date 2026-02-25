@@ -70,16 +70,15 @@ public class Server {
 
             context.status(200);
             context.contentType("application/json");
-            context.result(gson.toJson(Map.of("message", "register worked")));
+            context.result(gson.toJson(Map.of("username", newUser.username(),"authToken",authToken)));
         }
-        //TODO make these the right message
         catch(IllegalArgumentException e){
             context.status(400);
-            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+            context.result(gson.toJson(Map.of("message", "Error: bad request")));
         }
         catch(RuntimeException e){
             context.status(403);
-            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+            context.result(gson.toJson(Map.of("message", "Error: already taken")));
         }
         catch (Exception e) {
             context.status(500);
