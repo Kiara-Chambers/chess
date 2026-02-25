@@ -11,10 +11,10 @@ public class MemoryUserDAO implements UserDAO {
         users.clear();
     }
     public void createUser(UserData u) throws DataAccessException{
-
+        users.put(u.username(),u);
     }
-    public UserData getUser(String u) throws DataAccessException{
-        return null;
+    public UserData getUser(String username) throws DataAccessException{
+        return users.get(username);
     }
 
 }

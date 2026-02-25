@@ -1,12 +1,22 @@
 package service;
 
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
+import model.UserData;
 
 public class UserService {
-    public UserService(MemoryUserDAO userDAO, MemoryAuthDAO authDAO) {
+    UserDAO userDAO;
+    AuthDAO authDAO;
+
+    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
-   /* public RegisterResult register(RegisterRequest registerRequest) {}
-    public LoginResult login(LoginRequest loginRequest) {}
-    public void logout(LogoutRequest logoutRequest) {}*/
+
+    public String register(UserData user) throws DataAccessException {
+        //TODO: validation and whatnot
+        userDAO.createUser(user);
+        return authDAO.createAuth(user);
+    }
+   /* public void login( loginRequest) {}
+    public void logout( logoutRequest) {}*/
 }
