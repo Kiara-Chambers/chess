@@ -7,6 +7,7 @@ import dataaccess.MemoryGameDAO;
 import dataaccess.MemoryUserDAO;
 import io.javalin.*;
 import io.javalin.http.Context;
+import model.UserData;
 import org.jetbrains.annotations.NotNull;
 import service.ClearService;
 import service.GameService;
@@ -62,6 +63,29 @@ public class Server {
     }
 
     private void registerHandler(@NotNull Context context) {
+        try {
+            UserData newUser = new Gson().fromJson(context.body(), UserData.class);
+
+            String authToken = userService.register(newUser);
+
+            context.status(200);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "register worked")));
+        }
+        //TODO make these the right message
+        catch(IllegalArgumentException e){
+            context.status(400);
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
+        catch(RuntimeException e){
+            context.status(403);
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
+        catch (Exception e) {
+            context.status(500);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
 
     private void loginHandler(@NotNull Context context) {
