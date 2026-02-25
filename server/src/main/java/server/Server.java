@@ -34,20 +34,18 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Register your endpoints and exception handlers here.
+        javalin.delete("/db", this::clearHandler);
+
         javalin.post("/user", this::registerHandler);
 
         javalin.post("/session", this::loginHandler);
         javalin.delete("/session", this::logoutHandler);
 
         javalin.get("/game", this::listGamesHandler);
-        javalin.put("/game", this::joinGameHandler);
         javalin.post("/game", this::createGameHandler);
+        javalin.put("/game", this::joinGameHandler);
 
-        javalin.delete("/db", this::clearHandler);
 
-    }
-
-    private void createGameHandler(@NotNull Context context) {
     }
 
     private void clearHandler(@NotNull Context context) {
@@ -63,19 +61,22 @@ public class Server {
         }
     }
 
-    private void joinGameHandler(@NotNull Context context) {
-    }
-
-    private void listGamesHandler(@NotNull Context context) {
-    }
-
-    private void logoutHandler(@NotNull Context context) {
+    private void registerHandler(@NotNull Context context) {
     }
 
     private void loginHandler(@NotNull Context context) {
     }
 
-    private void registerHandler(@NotNull Context context) {
+    private void logoutHandler(@NotNull Context context) {
+    }
+
+    private void listGamesHandler(@NotNull Context context) {
+    }
+
+    private void createGameHandler(@NotNull Context context) {
+    }
+
+    private void joinGameHandler(@NotNull Context context) {
     }
 
     public int run(int desiredPort) {
