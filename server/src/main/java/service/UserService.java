@@ -6,6 +6,8 @@ import io.javalin.http.UnauthorizedResponse;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 
+import java.util.Objects;
+
 public class UserService {
     UserDAO userDAO;
     AuthDAO authDAO;
@@ -37,10 +39,10 @@ public class UserService {
                 user.password() == null) {
             throw new BadRequestResponse();
         }
-        //unathorized -> 401
+        //unauthorized -> 401
         UserData data = userDAO.getUser(user.username());
 
-        if(data==null){
+        if(data==null || !Objects.equals(data.password(), user.password())){
             throw new UnauthorizedResponse();
         }
 
