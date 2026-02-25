@@ -4,9 +4,9 @@ import dataaccess.*;
 
 public class ClearService
 {
-    MemoryUserDAO userDAO;
-    MemoryAuthDAO authDAO;
-    MemoryGameDAO gameDAO;
+    UserDAO userDAO;
+    AuthDAO authDAO;
+    GameDAO gameDAO;
 
 
     public ClearService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {

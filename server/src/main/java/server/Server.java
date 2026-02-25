@@ -1,5 +1,6 @@
 package server;
 
+import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
@@ -14,7 +15,7 @@ import service.UserService;
 import java.util.Map;
 
 public class Server {
-
+    private final Gson gson = new Gson();
     private final Javalin javalin;
     UserService userService;
     GameService gameService;
@@ -53,10 +54,12 @@ public class Server {
         try {
             clearService.clear();
             context.status(200);
-            context.json(Map.of());
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "clear worked")));
         } catch (DataAccessException e) {
             context.status(500);
-            context.json(Map.of("message", "Error:" + e.getMessage()));
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
         }
     }
 
