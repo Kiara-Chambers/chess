@@ -33,6 +33,7 @@ public class UserService {
         userDAO.createUser(user);
         return authDAO.createAuth(user);
     }
+
     public String login(UserData user) throws DataAccessException {
         //bad request -> 400
         if (user.username() == null ||
@@ -42,11 +43,17 @@ public class UserService {
         //unauthorized -> 401
         UserData data = userDAO.getUser(user.username());
 
-        if(data==null || !Objects.equals(data.password(), user.password())){
+        if (data == null || !Objects.equals(data.password(), user.password())) {
             throw new UnauthorizedResponse();
         }
 
         return authDAO.createAuth(data);
     }
-   /* public void logout( logoutRequest) {}*/
+
+    public void logout(String authToken) {
+        if (authToken==null) {
+            throw new UnauthorizedResponse();
+        }
+        authDAO.deleteAuth(authToken);
+    }
 }

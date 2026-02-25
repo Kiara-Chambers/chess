@@ -72,17 +72,14 @@ public class Server {
 
             context.status(200);
             context.contentType("application/json");
-            context.result(gson.toJson(Map.of("username", newUser.username(),"authToken",authToken)));
-        }
-        catch(BadRequestResponse e){
+            context.result(gson.toJson(Map.of("username", newUser.username(), "authToken", authToken)));
+        } catch (BadRequestResponse e) {
             context.status(400);
             context.result(gson.toJson(Map.of("message", "Error: bad request")));
-        }
-        catch(IllegalStateException e){
+        } catch (IllegalStateException e) {
             context.status(403);
             context.result(gson.toJson(Map.of("message", "Error: already taken")));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             context.status(500);
             context.contentType("application/json");
             context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
@@ -97,17 +94,14 @@ public class Server {
 
             context.status(200);
             context.contentType("application/json");
-            context.result(gson.toJson(Map.of("username", newUser.username(),"password", newUser.password(),"authToken",authToken)));
-        }
-        catch(BadRequestResponse e){
+            context.result(gson.toJson(Map.of("username", newUser.username(), "password", newUser.password(), "authToken", authToken)));
+        } catch (BadRequestResponse e) {
             context.status(400);
             context.result(gson.toJson(Map.of("message", "Error: bad request")));
-        }
-        catch( UnauthorizedResponse e){
+        } catch (UnauthorizedResponse e) {
             context.status(401);
             context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             context.status(500);
             context.contentType("application/json");
             context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
@@ -115,6 +109,23 @@ public class Server {
     }
 
     private void logoutHandler(@NotNull Context context) {
+        try {
+           // UserData newUser = new Gson().fromJson(context.body(), UserData.class);
+            String authToken = context.header("Authorization");
+
+            userService.logout(authToken);
+
+            context.status(200);
+            context.contentType("application/json");
+            context.result();
+        } catch (UnauthorizedResponse e) {
+            context.status(401);
+            context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
+        } catch (Exception e) {
+            context.status(500);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
 
     private void listGamesHandler(@NotNull Context context) {
