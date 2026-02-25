@@ -97,7 +97,7 @@ public class Server {
 
             context.status(200);
             context.contentType("application/json");
-            context.result(gson.toJson(Map.of("username", newUser.username(),"password", newUser.password())));
+            context.result(gson.toJson(Map.of("username", newUser.username(),"password", newUser.password(),"authToken",authToken)));
         }
         catch(BadRequestResponse e){
             context.status(400);
