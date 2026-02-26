@@ -55,9 +55,15 @@ public class GameService {
         GameData game = gameDAO.getGame(gameID);
         GameData updatedGame;
         if(playerColor.equals("WHITE")){
+            if(game.whiteUsername()!=null){
+                throw new IllegalStateException();
+            }
             updatedGame = new GameData(game.gameID(),user.username(),game.blackUsername(),game.gameName(),game.game());
 
         }else{
+            if(game.blackUsername()!=null){
+                throw new IllegalStateException();
+            }
             updatedGame = new GameData(game.gameID(),game.whiteUsername(),user.username(),game.gameName(),game.game());
         }
 

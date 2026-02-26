@@ -200,6 +200,9 @@ public class Server {
         } catch (UnauthorizedResponse e) {
             context.status(401);
             context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
+        } catch (IllegalStateException e) {
+            context.status(403);
+            context.result(gson.toJson(Map.of("message", "Error: already taken")));
         } catch (Exception e) {
             context.status(500);
             context.contentType("application/json");
