@@ -42,7 +42,13 @@ public class GameService {
         return gameDAO.createGame(newGame);
     }
 
-    public void joinGame() {
-
+    public void joinGame(String playerColor, Integer gameID, String authToken) {
+        UserData user = authDAO.getAuth(authToken);
+        if(user==null){
+            throw new UnauthorizedResponse();
+        }
+        if(playerColor==null||gameID==null){
+            throw new BadRequestResponse();
+        }
     }
 }

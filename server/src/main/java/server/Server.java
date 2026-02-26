@@ -177,6 +177,36 @@ public class Server {
     }
 
     private void joinGameHandler(@NotNull Context context) {
+        try {
+            String authToken = context.header("Authorization");
+
+            Map body = gson.fromJson(context.body(),Map.class);
+            String color =null;
+            Integer gameID = null;
+
+            //String gameName = null;
+            if(body!=null){
+               // gameName =(String) body.get("gameName");
+                color = (String) body.get("teamColor");
+                gameID = (Integer) body.get("gameID");
+
+            }
+
+            gameService.joinGame(color,gameID,authToken);
+            context.status(200);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("gameID",gameID)));
+        } catch (BadRequestResponse e) {
+            context.status(400);
+            context.result(gson.toJson(Map.of("message", "Error: bad request")));
+        } catch (UnauthorizedResponse e) {
+            context.status(401);
+            context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
+        } catch (Exception e) {
+            context.status(500);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
 
     public int run(int desiredPort) {
