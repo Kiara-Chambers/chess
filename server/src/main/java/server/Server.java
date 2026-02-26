@@ -151,7 +151,10 @@ public class Server {
 
     private void createGameHandler(@NotNull Context context) {
         try {
+            String authToken = context.header("Authorization");
 
+            String gameName = gson.fromJson(context.body(), Map.class).get("gameName").toString();
+            int gameID = gameService.createGame(gameName,authToken);
             context.status(200);
             context.contentType("application/json");
             context.result(gson.toJson(Map.of("gameID",gameID)));
