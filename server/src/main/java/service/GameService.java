@@ -1,6 +1,5 @@
 package service;
 
-import chess.ChessGame;
 import dataaccess.*;
 import io.javalin.http.UnauthorizedResponse;
 import model.GameData;
@@ -28,8 +27,11 @@ public class GameService {
         return gameDAO.listGames();
     }
 
-    public void createGame() {
-
+    public int createGame(String gameName, String authToken) throws DataAccessException {
+        UserData user = authDAO.getAuth(authToken);
+    
+        GameData newGame = new GameData(0,null,null,gameName,null);
+        return gameDAO.createGame(newGame);
     }
 
     public void joinGame() {
