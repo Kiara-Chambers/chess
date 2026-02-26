@@ -150,6 +150,22 @@ public class Server {
     }
 
     private void createGameHandler(@NotNull Context context) {
+        try {
+
+            context.status(200);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("gameID",gameID)));
+        } catch (BadRequestResponse e) {
+            context.status(400);
+            context.result(gson.toJson(Map.of("message", "Error: bad request")));
+        } catch (UnauthorizedResponse e) {
+            context.status(401);
+            context.result(gson.toJson(Map.of("message", "Error: unauthorized")));
+        } catch (Exception e) {
+            context.status(500);
+            context.contentType("application/json");
+            context.result(gson.toJson(Map.of("message", "Error: " + e.getMessage())));
+        }
     }
 
     private void joinGameHandler(@NotNull Context context) {
