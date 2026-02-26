@@ -186,8 +186,11 @@ public class Server {
 
             if(body!=null){
                 color = (String) body.get("playerColor");
-                //bruh, why is it making me do this... so stupid
-                gameID = ((Double) body.get("gameID")).intValue();
+                Object newGameID = body.get("gameID");
+                if(newGameID==null){
+                    throw new BadRequestResponse();
+                }
+                gameID = ((Double) newGameID).intValue();
             }
 
             gameService.joinGame(color,gameID,authToken);

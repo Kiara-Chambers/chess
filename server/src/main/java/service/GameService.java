@@ -53,6 +53,7 @@ public class GameService {
 
         //update game with user based on color
         GameData game = gameDAO.getGame(gameID);
+
         GameData updatedGame;
         if(playerColor.equals("WHITE")){
             if(game.whiteUsername()!=null){
