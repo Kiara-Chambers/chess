@@ -182,20 +182,18 @@ public class Server {
 
             Map body = gson.fromJson(context.body(),Map.class);
             String color =null;
-            Integer gameID = null;
+            int gameID = 0;
 
-            //String gameName = null;
             if(body!=null){
-               // gameName =(String) body.get("gameName");
-                color = (String) body.get("teamColor");
-                gameID = (Integer) body.get("gameID");
-
+                color = (String) body.get("playerColor");
+                //bruh, why is it making me do this... so stupid
+                gameID = ((Double) body.get("gameID")).intValue();
             }
 
             gameService.joinGame(color,gameID,authToken);
             context.status(200);
             context.contentType("application/json");
-            context.result(gson.toJson(Map.of("gameID",gameID)));
+            context.result(gson.toJson(Map.of("playerColor",color,"gameID",gameID)));
         } catch (BadRequestResponse e) {
             context.status(400);
             context.result(gson.toJson(Map.of("message", "Error: bad request")));

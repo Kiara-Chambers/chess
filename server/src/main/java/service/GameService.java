@@ -42,7 +42,7 @@ public class GameService {
         return gameDAO.createGame(newGame);
     }
 
-    public void joinGame(String playerColor, Integer gameID, String authToken) {
+    public void joinGame(String playerColor, Integer gameID, String authToken) throws DataAccessException {
         UserData user = authDAO.getAuth(authToken);
         if(user==null){
             throw new UnauthorizedResponse();
@@ -50,5 +50,18 @@ public class GameService {
         if(playerColor==null||gameID==null){
             throw new BadRequestResponse();
         }
+
+        //update game with user based on color
+        GameData game = gameDAO.getGame(gameID);
+        GameData updatedGame;
+        if(playerColor.equals("WHITE")){
+            updatedGame = new GameData(game.gameID(),user.username(),game.blackUsername(),game.gameName(),game.game());
+
+        }else{
+            updatedGame = new GameData(game.gameID(),game.whiteUsername(),user.username(),game.gameName(),game.game());
+        }
+
+
+        gameDAO.updateGame(updatedGame);
     }
 }
