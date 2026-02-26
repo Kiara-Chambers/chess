@@ -30,7 +30,7 @@ public class MemoryGameDAO implements GameDAO {
 
     public  List<GameData> listGames() throws DataAccessException {
 
-        return (List<GameData>) games.values();
+        return new ArrayList<>( games.values());
     }
 
     public void updateGame(GameData game) throws DataAccessException {

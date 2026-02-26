@@ -7,6 +7,7 @@ import io.javalin.*;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
+import model.GameData;
 import model.UserData;
 import org.jetbrains.annotations.NotNull;
 import service.ClearService;
@@ -133,7 +134,7 @@ public class Server {
         try {
 
             String authToken = context.header("Authorization");
-            List<ChessGame> games  = gameService.listGames(authToken);
+            List<GameData> games  = gameService.listGames(authToken);
 
             context.status(200);
             context.contentType("application/json");
