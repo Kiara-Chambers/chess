@@ -60,11 +60,13 @@ public class GameService {
             }
             updatedGame = new GameData(game.gameID(),user.username(),game.blackUsername(),game.gameName(),game.game());
 
-        }else{
+        }else if(playerColor.equals("BLACK")){
             if(game.blackUsername()!=null){
                 throw new IllegalStateException();
             }
             updatedGame = new GameData(game.gameID(),game.whiteUsername(),user.username(),game.gameName(),game.game());
+        }else{
+            throw new BadRequestResponse();
         }
 
 
