@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.GameData;
 import model.UserData;
@@ -33,7 +34,11 @@ public class GameService {
         if(user==null){
             throw new UnauthorizedResponse();
         }
+        if(gameName==null){
+            throw new BadRequestResponse();
+        }
         GameData newGame = new GameData(0,null,null,gameName,new ChessGame());
+
         return gameDAO.createGame(newGame);
     }
 
