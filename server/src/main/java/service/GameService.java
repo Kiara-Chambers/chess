@@ -23,7 +23,8 @@ public class GameService {
             throw new UnauthorizedResponse();
         }
 
-        return gameDAO.listGames(user);
+        //return gameDAO.listGames(user);
+        return List.of();
     }
 
     public void createGame() {

@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import model.GameData;
 import model.UserData;
 
 import java.util.List;
@@ -8,11 +9,11 @@ import java.util.List;
 public interface GameDAO {
     void clear() throws DataAccessException;
 
-    void createGame(UserData u) throws DataAccessException;
+    int createGame(GameData game) throws DataAccessException;
 
-    ChessGame getGame(UserData u) throws DataAccessException;
+    GameData getGame(int gameID) throws DataAccessException;
 
-    List<ChessGame> listGames(UserData u) throws DataAccessException;
+    List<GameData> listGames() throws DataAccessException;
 
-    void updateGame(UserData u) throws DataAccessException;
+    void updateGame(GameData game) throws DataAccessException;
 }
