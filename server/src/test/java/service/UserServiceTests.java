@@ -50,7 +50,7 @@ public class UserServiceTests {
     }
 
     @Test
-    void testLoginNegative()throws DataAccessException {
+    void testLoginNegative() throws DataAccessException {
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         UserService service = new UserService(userDAO, authDAO);
@@ -62,12 +62,23 @@ public class UserServiceTests {
     }
 
     @Test
-    void testLogoutPositive()throws DataAccessException {
+    void testLogoutPositive() throws DataAccessException {
+        UserDAO userDAO = new MemoryUserDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
+
+        UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
+
+        service.register(user);
+        String token = service.login(user);
+        service.logout(token);
+
+        assertNull(authDAO.getAuth(token));
 
     }
 
     @Test
-    void testLogoutNegative()throws DataAccessException {
+    void testLogoutNegative() throws DataAccessException {
 
     }
 }
