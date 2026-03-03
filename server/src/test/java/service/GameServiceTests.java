@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import io.javalin.http.UnauthorizedResponse;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,14 @@ public class GameServiceTests {
 
     }
     @Test
-    void testListGamesNegative(){
+    void testListGamesNegative() throws DataAccessException {
+        GameDAO gameDAO = new MemoryGameDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameService service = new GameService(gameDAO,authDAO);
+
+        String token  = "honorIsDead";
+
+        assertThrows(UnauthorizedResponse.class,()->service.listGames(token));
 
     }
     @Test
