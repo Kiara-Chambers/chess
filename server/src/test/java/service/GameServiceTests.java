@@ -66,8 +66,18 @@ public class GameServiceTests {
         assertThrows(UnauthorizedResponse.class,()->service.createGame("Storms",token));
     }
     @Test
-    void testJoinGamePositive(){
+    void testJoinGamePositive() throws DataAccessException {
+        GameDAO gameDAO = new MemoryGameDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameService service = new GameService(gameDAO,authDAO);
 
+        UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
+        String token  = authDAO.createAuth(user);
+
+        int game = service.createGame("Storms",token);
+        service.joinGame("WHITE",game,token);
+
+        assertEquals("Kaladin",gameDAO.getGame(game).whiteUsername());
     }
     @Test
     void testJoinGameNegative(){
