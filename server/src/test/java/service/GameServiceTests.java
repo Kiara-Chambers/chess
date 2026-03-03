@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.GameData;
 import model.UserData;
@@ -60,7 +61,6 @@ public class GameServiceTests {
         AuthDAO authDAO = new MemoryAuthDAO();
         GameService service = new GameService(gameDAO,authDAO);
 
-       // UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
         String token  = "youWillBeWarmAgain";
 
         assertThrows(UnauthorizedResponse.class,()->service.createGame("Storms",token));
@@ -80,8 +80,18 @@ public class GameServiceTests {
         assertEquals("Kaladin",gameDAO.getGame(game).whiteUsername());
     }
     @Test
-    void testJoinGameNegative(){
+    void testJoinGameNegative() throws DataAccessException {
+        GameDAO gameDAO = new MemoryGameDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameService service = new GameService(gameDAO,authDAO);
 
+        UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
+        String token  = authDAO.createAuth(user);
+
+        int game = service.createGame("Storms",token);
+
+
+        assertThrows(BadRequestResponse.class,()->service.joinGame("BLUE",game,token));
     }
 
 }
