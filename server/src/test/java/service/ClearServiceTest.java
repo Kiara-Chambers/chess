@@ -20,7 +20,6 @@ public class ClearServiceTest {
 
         UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
         userDAO.createUser(user);
-        authDAO.createAuth(user);
         gameDAO.createGame(new GameData(1, "Kaladin","Szeth","Storms",new ChessGame()));
 
         String token  = authDAO.createAuth(user);
