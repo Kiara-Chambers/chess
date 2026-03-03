@@ -5,6 +5,7 @@ import dataaccess.*;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTest {
@@ -19,9 +20,9 @@ public class ClearServiceTest {
 
         UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
         userDAO.createUser(user);
-        gameDAO.createGame(new GameData(1, "Kaladin","Szeth","Storms",new ChessGame()));
+        gameDAO.createGame(new GameData(1, "Kaladin", "Szeth", "Storms", new ChessGame()));
 
-        String token  = authDAO.createAuth(user);
+        String token = authDAO.createAuth(user);
 
         service.clear();
         assertNull(userDAO.getUser("Kaladin"));
