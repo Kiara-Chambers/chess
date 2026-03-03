@@ -79,6 +79,16 @@ public class UserServiceTests {
 
     @Test
     void testLogoutNegative() throws DataAccessException {
+        UserDAO userDAO = new MemoryUserDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        UserService service = new UserService(userDAO, authDAO);
 
+        UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
+
+        service.register(user);
+        String token = service.login(user);
+
+
+        assertThrows(UnauthorizedResponse.class, () -> service.logout("YouCannotHaveMyPain"));
     }
 }
