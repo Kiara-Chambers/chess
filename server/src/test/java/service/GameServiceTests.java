@@ -1,10 +1,8 @@
 package service;
 
-import chess.ChessGame;
 import dataaccess.*;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
-import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
