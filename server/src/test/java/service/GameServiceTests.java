@@ -16,7 +16,6 @@ public class GameServiceTests {
         GameService service = new GameService(gameDAO,authDAO);
 
         UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
-        authDAO.createAuth(user);
         String token  = authDAO.createAuth(user);
 
 
@@ -43,8 +42,17 @@ public class GameServiceTests {
 
     }
     @Test
-    void testCreateGamePositive(){
+    void testCreateGamePositive() throws DataAccessException {
+        GameDAO gameDAO = new MemoryGameDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameService service = new GameService(gameDAO,authDAO);
 
+        UserData user = new UserData("Kaladin", "pw", "stormblessed@byu.edu");
+        String token  = authDAO.createAuth(user);
+
+
+        int game = service.createGame("Storms",token);
+        assertTrue(game>0);
     }
     @Test
     void testCreateGameNegative(){
