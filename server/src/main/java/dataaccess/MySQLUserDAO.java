@@ -8,7 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 
-public class MySQLUserDAO {
+public class MySQLUserDAO implements UserDAO {
 
     public MySQLUserDAO() throws DataAccessException {
         createUserTable();
@@ -49,6 +49,17 @@ public class MySQLUserDAO {
             throw new DataAccessException("Error getting user:" + e.getMessage());
         }
         return null;
+    }
+
+    public void clear() throws DataAccessException {
+        var sql = "TRUNCATE user";
+        try (Connection con = DatabaseManager.getConnection();
+             PreparedStatement statement = con.prepareStatement(sql);
+        ) {
+            statement.executeUpdate();
+        }catch(Exception e){
+            throw new DataAccessException("Error clearing users:" + e.getMessage());
+        }
     }
 
 
