@@ -5,6 +5,7 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.UnauthorizedResponse;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
 
@@ -43,7 +44,7 @@ public class UserService {
         //unauthorized -> 401
         UserData data = userDAO.getUser(user.username());
 
-        if (data == null || !Objects.equals(data.password(), user.password())) {
+        if (data == null ||!BCrypt.checkpw(user.password(), data.password()) /*!Objects.equals(data.password(), user.password())*/) {
             throw new UnauthorizedResponse();
         }
 

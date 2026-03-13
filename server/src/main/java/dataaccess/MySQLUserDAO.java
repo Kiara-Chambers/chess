@@ -52,7 +52,7 @@ public class MySQLUserDAO implements UserDAO {
     }
 
     public void clear() throws DataAccessException {
-        var sql = "TRUNCATE user";
+        var sql = "DELETE FROM user";
         try (Connection con = DatabaseManager.getConnection();
              PreparedStatement statement = con.prepareStatement(sql);
         ) {

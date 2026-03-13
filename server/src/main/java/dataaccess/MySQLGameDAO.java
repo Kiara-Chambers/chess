@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.GameData;
 
 import java.sql.Connection;
@@ -10,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MySQLGameDAO implements GameDAO {
-
+    private Gson gson = new Gson();
     public MySQLGameDAO() throws DataAccessException {
         createGameTable();
     }
 
     public void clear() throws DataAccessException {
-        var sql = "TRUNCATE game";
+        var sql = "DELETE FROM game";
         try (Connection con = DatabaseManager.getConnection();
              PreparedStatement statement = con.prepareStatement(sql)) {
             statement.executeUpdate();
@@ -34,7 +36,7 @@ public class MySQLGameDAO implements GameDAO {
             statement.setString(2, game.whiteUsername());
             statement.setString(3, game.blackUsername());
             statement.setString(4, game.gameName());
-            statement.setString(5, "");
+            statement.setString(5, gson.toJson(game.game()));
             statement.executeUpdate();
 
         } catch (Exception e) {
@@ -51,12 +53,13 @@ public class MySQLGameDAO implements GameDAO {
             statement.setInt(1, gameID);
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
+                    ChessGame theGame = gson.fromJson(rs.getString("gameState"), ChessGame.class);
                     return new GameData(
                             rs.getInt("gameID"),
                             rs.getString("whiteUsername"),
                             rs.getString("blackUsername"),
                             rs.getString("gameName"),
-                            null
+                            theGame
                     );
                 }
             }
@@ -74,12 +77,15 @@ public class MySQLGameDAO implements GameDAO {
              ResultSet rs = statement.executeQuery()) {
 
             while (rs.next()) {
+                ChessGame theGame = gson.fromJson(rs.getString("gameState"), ChessGame.class);
+
                 games.add(new GameData(
                         rs.getInt("gameID"),
                         rs.getString("whiteUsername"),
                         rs.getString("blackUsername"),
                         rs.getString("gameName"),
-                        null
+                        theGame
+
                 ));
             }
         } catch (Exception e) {
@@ -96,7 +102,7 @@ public class MySQLGameDAO implements GameDAO {
             statement.setString(1, game.whiteUsername());
             statement.setString(2, game.blackUsername());
             statement.setString(3, game.gameName());
-            statement.setString(4, "");
+            statement.setString(4, gson.toJson(game.game()));
             statement.setInt(5, game.gameID());
             statement.executeUpdate();
 
