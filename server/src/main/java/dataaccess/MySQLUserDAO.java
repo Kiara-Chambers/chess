@@ -29,6 +29,28 @@ public class MySQLUserDAO {
             throw new DataAccessException("Error creating user:" + e.getMessage());
         }
     }
+    public UserData getUser(String username) throws DataAccessException {
+        var sql = "SELECT username, password, email FROM user WHERE username=?";
+        try (Connection con = DatabaseManager.getConnection();
+             PreparedStatement statement = con.prepareStatement(sql);
+        ) {
+
+            statement.setString(1, username);
+            try (var rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return new UserData(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error getting user:" + e.getMessage());
+        }
+        return null;
+    }
+
 
     public void createUserTable() throws DataAccessException {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS user (username VARCHAR(255) PRIMARY KEY,password VARCHAR(255) NOT NULL,email VARCHAR(255) NOT NULL) ";
