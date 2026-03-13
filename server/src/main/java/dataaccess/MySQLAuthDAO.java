@@ -2,12 +2,10 @@ package dataaccess;
 
 import model.UserData;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
+
 import java.util.UUID;
 
 public class MySQLAuthDAO implements AuthDAO {
@@ -16,8 +14,15 @@ public class MySQLAuthDAO implements AuthDAO {
         createAuthTable();
     }
 
-    public void clear() {
-        authTokens.clear();
+    public void clear()  {
+        var sql = "TRUNCATE auth";
+        try (Connection con = DatabaseManager.getConnection();
+             PreparedStatement statement = con.prepareStatement(sql);
+        ) {
+            statement.executeUpdate();
+        }catch(Exception e){
+            System.out.println("Error clearing auth: " + e.getMessage());
+        }
     }
 
     public String createAuth(UserData user) {
@@ -75,7 +80,7 @@ public class MySQLAuthDAO implements AuthDAO {
     }
 
     public void createAuthTable() throws DataAccessException {
-        String createTableSQL = "CREATE TABLE IF NOT EXISTS auth(authToken VARCHAR(255) PRIMARY KEY,username VARCHAR(255) NOT NULL ";
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS auth(authToken VARCHAR(255) PRIMARY KEY,username VARCHAR(255) NOT NULL) ";
 
         try (Connection con = DatabaseManager.getConnection();
              Statement statement = con.createStatement();
