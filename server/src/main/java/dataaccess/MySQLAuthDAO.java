@@ -14,18 +14,18 @@ public class MySQLAuthDAO implements AuthDAO {
         createAuthTable();
     }
 
-    public void clear()  {
+    public void clear() throws DataAccessException {
         var sql = "TRUNCATE auth";
         try (Connection con = DatabaseManager.getConnection();
              PreparedStatement statement = con.prepareStatement(sql);
         ) {
             statement.executeUpdate();
         }catch(Exception e){
-            System.out.println("Error clearing auth: " + e.getMessage());
+            throw new DataAccessException("Error clearing auth:" + e.getMessage());
         }
     }
 
-    public String createAuth(UserData user) {
+    public String createAuth(UserData user) throws DataAccessException{
         String token = UUID.randomUUID().toString();
         String sql = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
         try (Connection con = DatabaseManager.getConnection();
@@ -36,13 +36,13 @@ public class MySQLAuthDAO implements AuthDAO {
             stmt.executeUpdate();
 
         } catch (Exception e) {
-            System.out.println("Error creating auth: " + e.getMessage());
-            return null;
+            throw new DataAccessException("Error creating auth:" + e.getMessage());
+            //return null;
         }
         return token;
     }
 
-    public UserData getAuth(String token) {
+    public UserData getAuth(String token) throws DataAccessException{
 
         var sql = "SELECT username from auth WHERE authToken=?";
         try (Connection con = DatabaseManager.getConnection();
@@ -60,12 +60,12 @@ public class MySQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error getting auth: " + e.getMessage());
+            throw new DataAccessException("Error getting auth:" + e.getMessage());
         }
         return null;
     }
 
-    public void deleteAuth(String token) {
+    public void deleteAuth(String token)throws DataAccessException {
 
         String sql = "DELETE FROM auth WHERE authToken = ?";
         try (Connection con = DatabaseManager.getConnection();
@@ -75,7 +75,7 @@ public class MySQLAuthDAO implements AuthDAO {
             stmt.executeUpdate();
 
         } catch (Exception e) {
-            System.out.println("Error deleting auth: " + e.getMessage());
+            throw new DataAccessException("Error deleting auth:" + e.getMessage());
         }
     }
 

@@ -14,6 +14,7 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Map;
 
@@ -29,13 +30,18 @@ public class Server {
 
 
     public Server() {
-        var userDAO = new MemoryUserDAO();
-        var gameDAO = new MemoryGameDAO();
-        this.authDAO = new MemoryAuthDAO();
+        try{
+            var userDAO = new MySQLUserDAO();
+            var gameDAO = new MySQLGameDAO();
+            this.authDAO = new MySQLAuthDAO();
 
-        userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(gameDAO, authDAO);
-        clearService = new ClearService(userDAO, authDAO, gameDAO);
+            userService = new UserService(userDAO, authDAO);
+            gameService = new GameService(gameDAO, authDAO);
+            clearService = new ClearService(userDAO, authDAO, gameDAO);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
 
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));

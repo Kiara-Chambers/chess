@@ -50,7 +50,7 @@ public class UserService {
         return authDAO.createAuth(data);
     }
 
-    public void logout(String authToken) {
+    public void logout(String authToken) throws DataAccessException {
         //unauthorized -> 401
         if (authDAO.getAuth(authToken) == null || authToken == null) {
             throw new UnauthorizedResponse();
