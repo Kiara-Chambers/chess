@@ -2,13 +2,15 @@ package dataaccess;
 
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class MySQLAuthDAO implements AuthDAO{
+public class MySQLAuthDAO implements AuthDAO {
     Map<String, UserData> authTokens = new HashMap<>();
 
     public MySQLAuthDAO() throws DataAccessException {
@@ -26,7 +28,26 @@ public class MySQLAuthDAO implements AuthDAO{
     }
 
     public UserData getAuth(String token) {
-        return authTokens.get(token);
+
+        var sql = "SELECT username from auth WHERE authToken=?";
+        try (Connection con = DatabaseManager.getConnection();
+             PreparedStatement statement = con.prepareStatement(sql);
+        ) {
+
+            statement.setString(1, token);
+            try (var rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return new UserData(
+                            rs.getString("username"),
+                            null,
+                            null
+                    );
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error getting auth: " + e.getMessage());
+        }
+        return null;
     }
 
     public void deleteAuth(String token) {
