@@ -44,7 +44,7 @@ public class UserService {
         //unauthorized -> 401
         UserData data = userDAO.getUser(user.username());
 
-        if (data == null ||!BCrypt.checkpw(user.password(), data.password()) /*!Objects.equals(data.password(), user.password())*/) {
+        if (data == null ||!BCrypt.checkpw(user.password(), data.password())) {
             throw new UnauthorizedResponse();
         }
 
