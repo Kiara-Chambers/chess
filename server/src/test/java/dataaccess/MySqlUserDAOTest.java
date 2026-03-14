@@ -4,6 +4,7 @@ import model.UserData;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MySqlUserDAOTest {
     @Test
@@ -16,5 +17,15 @@ public class MySqlUserDAOTest {
 
         UserData checkDB = userDAO.getUser("Vin");
         assertEquals("Vin",checkDB.username());
+    }
+    @Test
+    void createUserNegative() throws DataAccessException {
+        MySQLUserDAO userDAO = new MySQLUserDAO();
+        userDAO.clear();
+
+        UserData user = new UserData("Vin","pw","Mistborn@byu.edu");
+        userDAO.createUser(user);
+
+        assertThrows(DataAccessException.class, ()->userDAO.createUser(user));
     }
 }
