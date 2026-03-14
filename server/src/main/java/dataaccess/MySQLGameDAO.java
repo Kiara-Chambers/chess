@@ -118,7 +118,7 @@ public class MySQLGameDAO implements GameDAO {
         }
     }
 
-    public void createGameTable() throws DataAccessException {
+    private void createGameTable() throws DataAccessException {
         var createTableSQL = "CREATE TABLE IF NOT EXISTS game (" +
                 "gameID INT PRIMARY KEY AUTO_INCREMENT, " +
                 "whiteUsername VARCHAR(255), " +
