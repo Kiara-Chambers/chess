@@ -18,6 +18,8 @@ public class MySqlGameDAOTest {
         int gameID = gameDAO.createGame(data);
 
         GameData checkDB = gameDAO.getGame(gameID);
+        assertNotNull(checkDB);
+        assertNotNull(checkDB.game());
         assertEquals("Rand",checkDB.whiteUsername());
         assertEquals("Mat",checkDB.blackUsername());
         assertEquals("OnePower",checkDB.gameName());
@@ -33,12 +35,26 @@ public class MySqlGameDAOTest {
     }
     @Test
     void getGamePositive() throws DataAccessException {
+        MySQLGameDAO gameDAO = new MySQLGameDAO();
+        gameDAO.clear();
 
+        GameData data = new GameData(0, "Rand", "Mat", "OnePower", new ChessGame());
+        int gameID = gameDAO.createGame(data);
+
+        GameData retrieved = gameDAO.getGame(gameID);
+        assertEquals("Rand", retrieved.whiteUsername());
+        assertEquals("Mat", retrieved.blackUsername());
+        assertEquals("OnePower", retrieved.gameName());
+        assertNotNull(retrieved.game());
     }
 
     @Test
     void getGameNegative() throws DataAccessException {
+        MySQLGameDAO gameDAO = new MySQLGameDAO();
+        gameDAO.clear();
 
+        GameData retrieved = gameDAO.getGame(3);
+        assertEquals(null, retrieved);
     }
     @Test
     void ListGamePositive(){
