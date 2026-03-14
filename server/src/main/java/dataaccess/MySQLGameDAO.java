@@ -28,21 +28,28 @@ public class MySQLGameDAO implements GameDAO {
     }
 
     public int createGame(GameData game) throws DataAccessException {
-        var sql = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, gameState) VALUES (?, ?, ?, ?, ?)";
+        var sql = "INSERT INTO game (whiteUsername, blackUsername, gameName, gameState) VALUES (?, ?, ?, ?)";
         try (Connection con = DatabaseManager.getConnection();
-             PreparedStatement statement = con.prepareStatement(sql)) {
+             PreparedStatement statement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt(1, game.gameID());
-            statement.setString(2, game.whiteUsername());
-            statement.setString(3, game.blackUsername());
-            statement.setString(4, game.gameName());
-            statement.setString(5, gson.toJson(game.game()));
+            statement.setString(1, game.whiteUsername());
+            statement.setString(2, game.blackUsername());
+            statement.setString(3, game.gameName());
+            statement.setString(4, gson.toJson(game.game()));
             statement.executeUpdate();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int newID = generatedKeys.getInt(1);
+                    return newID;
+                } else {
+                    throw new DataAccessException("Failed to get generated game ID.");
+                }
+            }
 
         } catch (Exception e) {
             throw new DataAccessException("Error creating game: " + e.getMessage());
         }
-        return game.gameID();
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
@@ -113,7 +120,7 @@ public class MySQLGameDAO implements GameDAO {
 
     public void createGameTable() throws DataAccessException {
         var createTableSQL = "CREATE TABLE IF NOT EXISTS game (" +
-                "gameID INT PRIMARY KEY, " +
+                "gameID INT PRIMARY KEY AUTO_INCREMENT, " +
                 "whiteUsername VARCHAR(255), " +
                 "blackUsername VARCHAR(255), " +
                 "gameName VARCHAR(255), " +
