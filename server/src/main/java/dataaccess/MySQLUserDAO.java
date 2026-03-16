@@ -29,6 +29,7 @@ public class MySQLUserDAO implements UserDAO {
             throw new DataAccessException("Error creating user:" + e.getMessage());
         }
     }
+
     public UserData getUser(String username) throws DataAccessException {
         var sql = "SELECT username, password, email FROM user WHERE username=?";
         try (Connection con = DatabaseManager.getConnection();
@@ -57,7 +58,7 @@ public class MySQLUserDAO implements UserDAO {
              PreparedStatement statement = con.prepareStatement(sql);
         ) {
             statement.executeUpdate();
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new DataAccessException("Error clearing users:" + e.getMessage());
         }
     }
