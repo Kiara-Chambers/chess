@@ -93,10 +93,10 @@ public class MySqlGameDAOTest {
         GameData data = new GameData(0, "Rand", "Mat", "OnePower", new ChessGame());
         int gameID = gameDAO.createGame(data);
 
-        GameData dataUpdated = new GameData(0, "Rand", "Perrin", "OnePower", new ChessGame());
+        GameData dataUpdated = new GameData(gameID, "Rand", "Perrin", "OnePower", new ChessGame());
 
         gameDAO.updateGame(dataUpdated);
-        assertEquals("Perrin", (gameDAO.getGame(gameID)).blackUsername());
+        assertEquals("Perrin", gameDAO.getGame(gameID).blackUsername());
     }
 
     @Test
@@ -113,17 +113,15 @@ public class MySqlGameDAOTest {
 
     @Test
     void clearTest() throws DataAccessException {
-//        MySQLUserDAO userDAO = new MySQLUserDAO();
-//        userDAO.clear();
-//
-//        UserData user = new UserData("Vin","pw","Mistborn@byu.edu");
-//        userDAO.createUser(user);
-//
-//        //exists
-//        assertEquals("Vin",userDAO.getUser("Vin").username());
-//
-//        userDAO.clear();
-//        //after clear
-//        assertEquals(null,userDAO.getUser("Vin"));
+        MySQLGameDAO gameDAO = new MySQLGameDAO();
+        gameDAO.clear();
+
+        GameData data = new GameData(0, "Rand", "Mat", "OnePower", new ChessGame());
+        int gameID = gameDAO.createGame(data);
+
+        assertEquals("Rand",gameDAO.getGame(gameID).whiteUsername());
+
+        gameDAO.clear();
+        assertEquals(0,gameDAO.listGames().size());
     }
 }
