@@ -79,7 +79,7 @@ public class MySQLAuthDAO implements AuthDAO {
         }
     }
 
-    public void createAuthTable() throws DataAccessException {
+    private void createAuthTable() throws DataAccessException {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS auth(authToken VARCHAR(255) PRIMARY KEY,username VARCHAR(255) NOT NULL) ";
 
         try (Connection con = DatabaseManager.getConnection();
