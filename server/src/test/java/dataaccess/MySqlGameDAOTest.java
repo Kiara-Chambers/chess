@@ -30,8 +30,10 @@ public class MySqlGameDAOTest {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
         gameDAO.clear();
 
-        GameData data = gameDAO.getGame(42);
-        assertEquals(null,data);
+        //Exception throwing, yay
+        assertThrows(Exception.class, () -> {
+            gameDAO.createGame(null);
+        });
     }
     @Test
     void getGamePositive() throws DataAccessException {
@@ -57,12 +59,25 @@ public class MySqlGameDAOTest {
         assertEquals(null, retrieved);
     }
     @Test
-    void ListGamePositive(){
+    void ListGamePositive() throws DataAccessException {
+        MySQLGameDAO gameDAO = new MySQLGameDAO();
+        gameDAO.clear();
 
+        GameData data1 = new GameData(0, "Rand", "Mat", "OnePower", new ChessGame());
+        GameData data2 = new GameData(0, "Perrin", "Faile", "Love?", new ChessGame());
+
+        gameDAO.createGame(data1);
+        gameDAO.createGame(data2);
+        var games = gameDAO.listGames();
+        assertEquals(2,games.size());
     }
     @Test
-    void ListGameNegative(){
+    void ListGameNegative() throws DataAccessException {
+        MySQLGameDAO gameDAO = new MySQLGameDAO();
+        gameDAO.clear();
 
+        var games = gameDAO.listGames();
+        assertEquals(0,games.size());
     }
     @Test
     void UpdateGamePositive(){

@@ -63,7 +63,7 @@ public class MySqlUserDAOTest {
         userDAO.createUser(user);
 
         //exists
-        assertEquals("Vin",userDAO.getUser("vin").username());
+        assertEquals("Vin",userDAO.getUser("Vin").username());
 
         userDAO.clear();
         //after clear
