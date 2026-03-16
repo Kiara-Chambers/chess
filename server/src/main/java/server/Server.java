@@ -31,6 +31,8 @@ public class Server {
 
     public Server() {
         try{
+            DatabaseManager.createDatabase();
+
             var userDAO = new MySQLUserDAO();
             var gameDAO = new MySQLGameDAO();
             this.authDAO = new MySQLAuthDAO();
