@@ -64,7 +64,10 @@ public class MySQLUserDAO implements UserDAO {
 
 
     private void createUserTable() throws DataAccessException {
-        String createTableSQL = "CREATE TABLE IF NOT EXISTS user (username VARCHAR(255) PRIMARY KEY,password VARCHAR(255) NOT NULL,email VARCHAR(255) NOT NULL) ";
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS user " +
+                "(username VARCHAR(255) PRIMARY KEY," +
+                "password VARCHAR(255) NOT NULL," +
+                "email VARCHAR(255) NOT NULL) ";
 
         try (Connection con = DatabaseManager.getConnection();
              Statement statement = con.createStatement();
