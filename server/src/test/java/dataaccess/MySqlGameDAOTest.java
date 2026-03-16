@@ -61,7 +61,7 @@ public class MySqlGameDAOTest {
     }
 
     @Test
-    void ListGamePositive() throws DataAccessException {
+    void listGamePositive() throws DataAccessException {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
         gameDAO.clear();
 
@@ -75,7 +75,7 @@ public class MySqlGameDAOTest {
     }
 
     @Test
-    void ListGameNegative() throws DataAccessException {
+    void listGameNegative() throws DataAccessException {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
         gameDAO.clear();
 
@@ -84,7 +84,7 @@ public class MySqlGameDAOTest {
     }
 
     @Test
-    void UpdateGamePositive() throws DataAccessException {
+    void updateGamePositive() throws DataAccessException {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
         gameDAO.clear();
 
@@ -98,7 +98,7 @@ public class MySqlGameDAOTest {
     }
 
     @Test
-    void UpdateGameNegative() throws DataAccessException {
+    void updateGameNegative() throws DataAccessException {
 
         MySQLGameDAO gameDAO = new MySQLGameDAO();
         gameDAO.clear();
