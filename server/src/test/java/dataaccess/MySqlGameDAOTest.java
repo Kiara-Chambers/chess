@@ -2,6 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -14,17 +15,18 @@ public class MySqlGameDAOTest {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
         gameDAO.clear();
 
-        GameData data = new GameData(0,"Rand","Mat","OnePower",new ChessGame());
+        GameData data = new GameData(0, "Rand", "Mat", "OnePower", new ChessGame());
         int gameID = gameDAO.createGame(data);
 
         GameData checkDB = gameDAO.getGame(gameID);
         assertNotNull(checkDB);
         assertNotNull(checkDB.game());
-        assertEquals("Rand",checkDB.whiteUsername());
-        assertEquals("Mat",checkDB.blackUsername());
-        assertEquals("OnePower",checkDB.gameName());
+        assertEquals("Rand", checkDB.whiteUsername());
+        assertEquals("Mat", checkDB.blackUsername());
+        assertEquals("OnePower", checkDB.gameName());
 
     }
+
     @Test
     void createGameNegative() throws DataAccessException {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
@@ -35,6 +37,7 @@ public class MySqlGameDAOTest {
             gameDAO.createGame(null);
         });
     }
+
     @Test
     void getGamePositive() throws DataAccessException {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
@@ -58,6 +61,7 @@ public class MySqlGameDAOTest {
         GameData retrieved = gameDAO.getGame(3);
         assertEquals(null, retrieved);
     }
+
     @Test
     void ListGamePositive() throws DataAccessException {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
@@ -69,27 +73,57 @@ public class MySqlGameDAOTest {
         gameDAO.createGame(data1);
         gameDAO.createGame(data2);
         var games = gameDAO.listGames();
-        assertEquals(2,games.size());
+        assertEquals(2, games.size());
     }
+
     @Test
     void ListGameNegative() throws DataAccessException {
         MySQLGameDAO gameDAO = new MySQLGameDAO();
         gameDAO.clear();
 
         var games = gameDAO.listGames();
-        assertEquals(0,games.size());
+        assertEquals(0, games.size());
     }
-    @Test
-    void UpdateGamePositive(){
 
+    @Test
+    void UpdateGamePositive() throws DataAccessException {
+        MySQLGameDAO gameDAO = new MySQLGameDAO();
+        gameDAO.clear();
+
+        GameData data = new GameData(0, "Rand", "Mat", "OnePower", new ChessGame());
+        int gameID = gameDAO.createGame(data);
+
+        GameData dataUpdated = new GameData(0, "Rand", "Perrin", "OnePower", new ChessGame());
+
+        gameDAO.updateGame(dataUpdated);
+        assertEquals("Perrin", (gameDAO.getGame(gameID)).blackUsername());
     }
-    @Test
-    void UpdateGameNegative(){
 
+    @Test
+    void UpdateGameNegative() throws DataAccessException {
+
+        MySQLGameDAO gameDAO = new MySQLGameDAO();
+        gameDAO.clear();
+
+        GameData data = new GameData(0, "Rand", "Mat", "OnePower", new ChessGame());
+
+        gameDAO.updateGame(data);
+        assertNull(gameDAO.getGame(0));
     }
 
     @Test
     void clearTest() throws DataAccessException {
-
+//        MySQLUserDAO userDAO = new MySQLUserDAO();
+//        userDAO.clear();
+//
+//        UserData user = new UserData("Vin","pw","Mistborn@byu.edu");
+//        userDAO.createUser(user);
+//
+//        //exists
+//        assertEquals("Vin",userDAO.getUser("Vin").username());
+//
+//        userDAO.clear();
+//        //after clear
+//        assertEquals(null,userDAO.getUser("Vin"));
     }
 }
