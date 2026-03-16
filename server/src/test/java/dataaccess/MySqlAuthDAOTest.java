@@ -46,9 +46,37 @@ public class MySqlAuthDAOTest {
         assertNull(fromDB);
     }
     @Test
-    void deleteAuthPositive() throws DataAccessException {}
+    void deleteAuthPositive() throws DataAccessException {
+        MySQLAuthDAO authDAO = new MySQLAuthDAO();
+        authDAO.clear();
+
+        UserData user = new UserData("Vis Telimus","pw","bis@byu.edu");
+        String token = authDAO.createAuth(user);
+        authDAO.deleteAuth(token);
+
+        assertNull(authDAO.getAuth(token));
+
+    }
     @Test
-    void deleteAuthNegative() throws DataAccessException {}
+    void deleteAuthNegative() throws DataAccessException {
+        MySQLAuthDAO authDAO = new MySQLAuthDAO();
+        authDAO.clear();
+
+        authDAO.deleteAuth("CatenanRepublic");
+
+        assertNull(authDAO.getAuth("CatenanRepublic"));
+
+    }
     @Test
-    void clearTest() throws DataAccessException {}
+    void clearTest() throws DataAccessException {
+        MySQLAuthDAO authDAO = new MySQLAuthDAO();
+        authDAO.clear();
+
+        UserData user = new UserData("Vis Telimus","pw","bis@byu.edu");
+        String token = authDAO.createAuth(user);
+
+        assertNotNull(authDAO.getAuth(token));
+        authDAO.clear();
+        assertNull(authDAO.getAuth(token));
+    }
 }
