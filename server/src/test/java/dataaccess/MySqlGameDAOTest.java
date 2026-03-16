@@ -2,9 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.Test;
-import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
