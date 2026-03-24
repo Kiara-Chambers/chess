@@ -1,10 +1,10 @@
 package client;
 
-import chess.*;
 import model.AuthData;
+import model.GameData;
 import ui.EscapeSequences;
 
-import java.util.Locale;
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -18,11 +18,8 @@ public class ClientMain {
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
-        //drawChessBoard("WHITE");
-        //drawChessBoard("BLACK");
         menu();
     }
-
 
     public static void menu() throws Exception {
         String userInput = scanner.next();
@@ -50,23 +47,26 @@ public class ClientMain {
             }
         } else {
             switch (userInput) {
-                case "help":
-                    help();
+                case "create":
+                    handleCreateGame(scanner.next());
                     break;
+                case "list":
+                    handleListGames();
+                    break;
+                case "join":
+                    handleJoinGame(scanner.next(),scanner.next());
+                    break;
+                case "observe":
+                    handleObserveGame(scanner.next());
                 case "logout":
                     handleLogout();
                     break;
-                case "createGame":
-                    handleCreateGame();
+                case "quit":
+                    quit();
                     break;
-                case "listGames":
-                    handleListGames();
+                case "help":
+                    help();
                     break;
-                case "playGame":
-                    handleJoinGame();
-                    break;
-                case "observe":
-                    handleObserveGame();
                 default:
                     System.out.println("Please enter a valid option");
                     menu();
@@ -111,7 +111,8 @@ public class ClientMain {
 
     public static void handleLogin(String username, String password) throws Exception {
         try {
-            facade.login(username, password);
+            AuthData authData = facade.login(username, password);
+            authToken = authData.authToken();
             loggedIn = true;
             System.out.println("Logged in as" + username);
             menu();
@@ -134,18 +135,41 @@ public class ClientMain {
     }
 
     public static void handleListGames() {
-        //listGames();
+        try {
+            List<GameData> gameList = facade.listGames(authToken);
+            for (int i=0;i< gameList.size();i++){
+                GameData game = gameList.get(i);
+                System.out.println((i + 1) + ". " + game.gameName()
+                        + " | White: " + game.whiteUsername()
+                        + " | Black: " + game.blackUsername());
+            }
+            
+            menu();
+        } catch (Exception e) {
+            System.out.println("failed to list games");
+        }
     }
 
-    public static void handleCreateGame() {
-        //createGame();
+    public static void handleCreateGame(String gameName) {
+        try {
+            facade.createGame(authToken,gameName);
+            System.out.println("The game "+gameName+" has been created");
+            menu();
+        } catch (Exception e) {
+            System.out.println("failed to create game");
+        }
     }
 
-    public static void handleJoinGame() {
+    public static void handleJoinGame(String id, String color) {
         //joinGame();
     }
 
-    public static void handleObserveGame() {
+    public static void handleObserveGame(String gameID) {
+        try {
+            drawChessBoard("WHITE");
+        } catch (Exception e) {
+            System.out.println("failed to observe game");
+        }
     }
 
 

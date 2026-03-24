@@ -43,10 +43,10 @@ public class ServerFacade {
     }
 
 
-    public List<?> listGames(String authToken) throws Exception {
+    public List<GameData> listGames(String authToken) throws Exception {
         HttpRequest request = buildRequestWithAuth("GET", "/game", null, authToken);
         HttpResponse<String> response = sendRequest(request);
-        return (List<?>) gson.fromJson(gson.fromJson(response.body(), Map.class).get("games").toString(), List.class);
+        return gson.fromJson(gson.fromJson(response.body(), Map.class).get("games").toString(), List.class);
     }
 
     public GameData createGame(String gameName,String authToken) throws Exception {
