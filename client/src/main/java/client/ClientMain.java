@@ -40,7 +40,7 @@ public class ClientMain {
                     handleRegister(scanner.next(), scanner.next(), scanner.next());
                     break;
                 default:
-                    System.out.println("Please enter a valid option\n");
+                    System.out.println("Please enter a valid option");
                     menu();
                     break;
 
@@ -114,10 +114,11 @@ public class ClientMain {
             AuthData authData = facade.login(username, password);
             authToken = authData.authToken();
             loggedIn = true;
-            System.out.println("Logged in as" + username);
+            System.out.println("Logged in as " + username+"!\nEnter Help to see what commands are available.");
             menu();
         } catch (Exception e) {
-            System.out.println("username or password is wrong");
+            System.out.println("username or password is wrong. Please reattempt the command.");
+            menu();
         }
 
     }
@@ -136,14 +137,20 @@ public class ClientMain {
 
     public static void handleListGames() {
         try {
-            List<GameData> gameList = facade.listGames(authToken);
-            for (int i=0;i< gameList.size();i++){
-                GameData game = gameList.get(i);
-                System.out.println((i + 1) + ". " + game.gameName()
-                        + " | White: " + game.whiteUsername()
-                        + " | Black: " + game.blackUsername());
+            List<?> gameList = facade.listGames(authToken);
+
+            for (int i = 0; i < gameList.size(); i++) {
+                var map = (java.util.Map<?, ?>) gameList.get(i);
+
+                String name = (String) map.get("gameName");
+                String white = (String) map.get("whiteUsername");
+                String black = (String) map.get("blackUsername");
+
+                System.out.println((i + 1) + ". " + name
+                        + "\n    White: " + white
+                        + "\n    Black: " + black);
             }
-            
+
             menu();
         } catch (Exception e) {
             System.out.println("failed to list games");
@@ -152,7 +159,7 @@ public class ClientMain {
 
     public static void handleCreateGame(String gameName) {
         try {
-            facade.createGame(authToken,gameName);
+            facade.createGame(gameName,authToken);
             System.out.println("The game "+gameName+" has been created");
             menu();
         } catch (Exception e) {
