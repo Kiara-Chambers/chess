@@ -15,6 +15,27 @@ public class ServerFacade {
         this.serverUrl = "http://localhost:" + port;
     }
 
+    public AuthData register(String username,String password, String email) throws Exception {
+        var request = buildRequest("POST", "/user/register",new UserData(username,password, email));
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
+    }
+
+
+
+
+
+    
+    private HttpRequest buildRequest(String method, String path, Object body) {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + path))
+                .method(method, makeRequestBody(body));
+        if (body != null) {
+            request.setHeader("Content-Type", "application/json");
+        }
+        return request.build();
+    }
+
     private BodyPublisher makeRequestBody(Object request) {
         if (request != null) {
             return BodyPublishers.ofString(new Gson().toJson(request));
