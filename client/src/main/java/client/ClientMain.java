@@ -10,22 +10,32 @@ import java.util.Scanner;
 public class ClientMain {
     public static ServerFacade facade;
     public static boolean loggedIn = false;
-     Scanner scanner = new Scanner(System.in);
+     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
         drawChessBoard("WHITE");
         //drawChessBoard("BLACK");
-
-        //menu
+        menu();
     }
 
 
-    public static void menu() {
+    public static void menu() throws Exception {
+        String userInput = scanner.nextLine();
+        switch(userInput){
+            case "help":
+                help();
+            case "quit":
+                quit();
+            case "login":
+                handleLogin();
+            case "register":
+                handleRegister();
+        }
     }
 
-    public void help() {
+    public static void help() {
         if(!loggedIn) {
             System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
             System.out.println("login <USERNAME> <PASSWORD> - to play chess");
@@ -41,8 +51,11 @@ public class ClientMain {
             System.out.println("help - list possible actions");
         }
     }
+    public static void quit(){
+        System.out.println("You have sucessfully quit the program.\nThanks for playing!");
+    }
 
-    public void handleRegister() throws Exception {
+    public static void handleRegister() throws Exception {
         System.out.println("Enter your username:");
         String username = scanner.nextLine();
         System.out.println("Enter your password:");
@@ -57,26 +70,26 @@ public class ClientMain {
 
     }
 
-    public  void handleLogin() {
+    public static void handleLogin() {
         //login  and add name
         //login();
         System.out.println("Logged in as NAME");
 
     }
 
-    public void handleLogout() {
+    public static void handleLogout() {
         //logout();
     }
 
-    public void handleListGames() {
+    public static void handleListGames() {
         //listGames();
     }
 
-    public void handleCreateGame() {
+    public static void handleCreateGame() {
         //createGame();
     }
 
-    public void handleJoinGame() {
+    public static void handleJoinGame() {
         //joinGame();
     }
 
