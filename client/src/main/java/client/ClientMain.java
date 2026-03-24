@@ -16,7 +16,7 @@ public class ClientMain {
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
-        drawChessBoard("WHITE");
+        //drawChessBoard("WHITE");
         //drawChessBoard("BLACK");
         menu();
     }
@@ -92,9 +92,14 @@ public class ClientMain {
     }
 
     public static void handleLogin(String username,String password) throws Exception {
-        //login  and add name
-        facade.login(username,password);
-        System.out.println("Logged in as NAME");
+        try {
+            facade.login(username, password);
+            loggedIn = true;
+            System.out.println("Logged in as" + username);
+        } catch (Exception e) {
+            System.out.println("username or password is wrong");
+
+        }
 
     }
 
