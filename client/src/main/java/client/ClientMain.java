@@ -10,7 +10,9 @@ public class ClientMain {
     public static void main(String[] args) {
         facade = new ServerFacade(8080);
         System.out.println("♕ 240 Chess Client");
-        drawChessBoard("BLACK");
+        drawChessBoard("WHITE");
+        //drawChessBoard("BLACK");
+
         //menu
     }
 
@@ -39,11 +41,14 @@ public class ClientMain {
 
         if (Objects.equals(perspective, "BLACK")) {
             for (int r =7; r >= 0; r--) {
+                System.out.print((8-r) + " ");
                 for (int c=7; c >= 0; c--) {
                     System.out.print(board[r][c]);
                 }
                 System.out.println(EscapeSequences.RESET_BG_COLOR);
             }
+            System.out.println("  h   g   f   e   d   c   b   a");
+
         } else {
             for (int r =7; r >= 0; r--) {
                 System.out.print((r + 1) + " ");
@@ -52,6 +57,8 @@ public class ClientMain {
                 }
                 System.out.println(EscapeSequences.RESET_BG_COLOR);
             }
+            System.out.println("  a   b   c   d   e   f   g   h");
+
         }
 
     }
