@@ -24,17 +24,22 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-
-    @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    @BeforeEach
+    void clearDB() throws Exception {
+        facade.clearDatabase();
     }
 
     /// 2 tests each 1 pos 1 neg
     @Test
-    void register() throws Exception {
+    void registerPositive() throws Exception {
         var authData = facade.register("player1", "password", "p1@email.com");
+        assertNotNull(authData);
         assertTrue(authData.authToken().length() > 10);
+    }
+    @Test
+    void registerNegative() throws Exception {
+        var authData = facade.register("player1", "password", "p1@email.com");
+        assertThrows(Exception.class,()->facade.register("player1", "password", "p1@email.com"));
     }
 
 }

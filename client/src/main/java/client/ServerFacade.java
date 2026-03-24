@@ -19,6 +19,11 @@ public class ServerFacade {
         this.serverUrl = "http://localhost:" + port;
     }
 
+    public void clearDatabase() throws Exception {
+        var request = buildRequest("DELETE","/db",null);
+        sendRequest(request);
+    }
+
     //
     public AuthData register(String username,String password, String email) throws Exception {
         var request = buildRequest("POST", "/user",new UserData(username,password, email));
