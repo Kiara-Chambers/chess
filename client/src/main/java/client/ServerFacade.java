@@ -21,31 +21,31 @@ public class ServerFacade {
 
     //
     public AuthData register(String username,String password, String email) throws Exception {
-        var request = buildRequest("POST", "/user/register",new UserData(username,password, email));
+        var request = buildRequest("POST", "/user",new UserData(username,password, email));
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
     public AuthData login(String username,String password) throws Exception {
-        var request = buildRequest("POST", "/user/login",new AuthData(username,password));
+        var request = buildRequest("POST", "/user",new AuthData(username,password));
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
     public void logout(String authToken) throws Exception {
-        var request = buildRequest("POST", "/user/logout", new AuthData(authToken,null));
+        var request = buildRequest("POST", "/user", new AuthData(authToken,null));
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
     public List<GameData> listGames() throws Exception {
-        HttpRequest request = buildRequest("GET", "/game/list", null);
+        HttpRequest request = buildRequest("GET", "/game", null);
         HttpResponse<String> response = sendRequest(request);
         return gson.fromJson(response.body(), List.class); // simple list, not typed
     }
 
     public GameData createGame(String gameName) throws Exception {
         GameData game = new GameData(0, null, null, gameName, null);
-        HttpRequest request = buildRequest("POST", "/game/create", game);
+        HttpRequest request = buildRequest("POST", "/game", game);
         HttpResponse<String> response = sendRequest(request);
         return handleResponse(response, GameData.class);
     }
@@ -53,7 +53,7 @@ public class ServerFacade {
     public void joinGame(int gameID, String playerColor, String username) throws Exception {
         GameData game = new GameData(gameID, playerColor.equals("WHITE") ? username : null,
                 playerColor.equals("BLACK") ? username : null, null, null);
-        HttpRequest request = buildRequest("POST", "/game/join", game);
+        HttpRequest request = buildRequest("POST", "/game", game);
         HttpResponse<String> response = sendRequest(request);
         handleResponse(response, null);
     }
