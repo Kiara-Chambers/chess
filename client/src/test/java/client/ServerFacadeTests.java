@@ -101,14 +101,14 @@ public class ServerFacadeTests {
     void joinGamePositive() throws Exception {
         var authData = facade.register("player1", "password", "p1@email.com");
         var game = facade.createGame("JoinTest", authData.authToken());
-        assertDoesNotThrow(() -> facade.joinGame(game.gameID(), "WHITE", "player1", authData.authToken()));
+        assertDoesNotThrow(() -> facade.joinGame(game.gameID(), "WHITE",  authData.authToken()));
     }
 
     @Test
     void joinGameNegative() throws Exception {
         var authData = facade.register("player1", "password", "p1@email.com");
         var game = facade.createGame("TakenColorTest", authData.authToken());
-        facade.joinGame(game.gameID(), "WHITE", "player1", authData.authToken());
-        assertThrows(Exception.class, () -> facade.joinGame(game.gameID(), "WHITE", "player1", authData.authToken()));
+        facade.joinGame(game.gameID(), "WHITE",  authData.authToken());
+        assertThrows(Exception.class, () -> facade.joinGame(game.gameID(), "player1", authData.authToken()));
     }
 }

@@ -32,7 +32,7 @@ public class ServerFacade {
     }
 
     public AuthData login(String username,String password) throws Exception {
-        var request = buildRequest("POST", "/user",new AuthData(username,password));
+        var request = buildRequest("POST", "/session",new UserData(username,password,null));
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
@@ -56,12 +56,13 @@ public class ServerFacade {
         return handleResponse(response, GameData.class);
     }
 
-    public void joinGame(int gameID, String playerColor, String username, String authToken) throws Exception {
-        GameData game = new GameData(gameID,
-                playerColor.equals("WHITE") ? username : null,
-                playerColor.equals("BLACK") ? username : null,
-                null, null);
-        HttpRequest request = buildRequestWithAuth("POST", "/game", game, authToken);
+    public void joinGame(int gameID, String playerColor, String authToken) throws Exception {
+        Map<String, Object> body = Map.of(
+                "gameID", gameID,
+                "playerColor", playerColor
+        );
+
+        HttpRequest request = buildRequestWithAuth("PUT", "/game", body, authToken);
         HttpResponse<String> response = sendRequest(request);
         handleResponse(response, null);
     }
