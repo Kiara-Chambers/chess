@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class ClientMain {
     public static ServerFacade facade;
     public static boolean loggedIn = false;
-     static Scanner scanner = new Scanner(System.in);
+    static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
@@ -26,7 +26,7 @@ public class ClientMain {
         String userInput = scanner.next();
 
         userInput = userInput.toLowerCase();
-        if(!loggedIn) {
+        if (!loggedIn) {
             switch (userInput) {
                 case "help":
                     help();
@@ -40,8 +40,13 @@ public class ClientMain {
                 case "register":
                     handleRegister(scanner.next(), scanner.next(), scanner.next());
                     break;
+                default:
+                    System.out.println("Please enter a valid option\n");
+                    menu();
+                    break;
+
             }
-        }else{
+        } else {
             switch (userInput) {
                 case "help":
                     help();
@@ -49,26 +54,32 @@ public class ClientMain {
                 case "logout":
                     handleLogout();
                     break;
-                case "quit":
-                    quit();
+                case "createGame":
+                    handleCreateGame();
                     break;
-                case "login":
-                    handleLogin(scanner.next(), scanner.next());
+                case "listGames":
+                    handleListGames();
                     break;
-                case "register":
-                    handleRegister(scanner.next(), scanner.next(), scanner.next());
+                case "playGame":
+                    handleJoinGame();
+                    break;
+                case "observe":
+                    handleObserveGame();
+                default:
+                    System.out.println("Please enter a valid option");
+                    menu();
                     break;
             }
         }
     }
 
     public static void help() throws Exception {
-        if(!loggedIn) {
+        if (!loggedIn) {
             System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
             System.out.println("login <USERNAME> <PASSWORD> - to play chess");
             System.out.println("quit - playing chess");
             System.out.println("help - list possible actions");
-        }else{
+        } else {
             System.out.println("create <NAME> - a game");
             System.out.println("list - games");
             System.out.println("join <ID> [WHITE][BLACK] - a game");
@@ -79,32 +90,43 @@ public class ClientMain {
         }
         menu();
     }
-    public static void quit(){
+
+    public static void quit() {
         System.out.println("You have successfully quit the program.\nThanks for playing!");
     }
 
     public static void handleRegister(String username, String password, String email) throws Exception {
-        AuthData authData = facade.register(username,password, email);
-        loggedIn=true;
-
-        System.out.println("Registered and logged in as "+username);
-
+        try {
+            AuthData authData = facade.register(username, password, email);
+            loggedIn = true;
+            System.out.println("Registered and logged in as " + username);
+            menu();
+        } catch (Exception e) {
+            System.out.println("error with registration");
+        }
     }
 
-    public static void handleLogin(String username,String password) throws Exception {
+    public static void handleLogin(String username, String password) throws Exception {
         try {
             facade.login(username, password);
             loggedIn = true;
             System.out.println("Logged in as" + username);
+            menu();
         } catch (Exception e) {
             System.out.println("username or password is wrong");
-
         }
 
     }
 
-    public static void handleLogout() {
-        //logout();
+    public static void handleLogout(String authToken) throws Exception {
+        try {
+            facade.logout(authToken);
+            loggedIn = false;
+            System.out.println("You've logged out successfully");
+            menu();
+        } catch (Exception e) {
+            System.out.println("failed to log out");
+        }
     }
 
     public static void handleListGames() {
@@ -117,6 +139,9 @@ public class ClientMain {
 
     public static void handleJoinGame() {
         //joinGame();
+    }
+
+    public static void handleObserveGame() {
     }
 
 
