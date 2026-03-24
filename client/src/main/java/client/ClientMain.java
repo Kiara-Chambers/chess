@@ -24,20 +24,41 @@ public class ClientMain {
 
     public static void menu() throws Exception {
         String userInput = scanner.next();
+
         userInput = userInput.toLowerCase();
-        switch(userInput){
-            case "help":
-                help();
-                break;
-            case "quit":
-                quit();
-                break;
-            case "login":
-                handleLogin();
-                break;
-            case "register":
-                handleRegister(scanner.next(),scanner.next(),scanner.next());
-                break;
+        if(!loggedIn) {
+            switch (userInput) {
+                case "help":
+                    help();
+                    break;
+                case "quit":
+                    quit();
+                    break;
+                case "login":
+                    handleLogin(scanner.next(), scanner.next());
+                    break;
+                case "register":
+                    handleRegister(scanner.next(), scanner.next(), scanner.next());
+                    break;
+            }
+        }else{
+            switch (userInput) {
+                case "help":
+                    help();
+                    break;
+                case "logout":
+                    handleLogout();
+                    break;
+                case "quit":
+                    quit();
+                    break;
+                case "login":
+                    handleLogin(scanner.next(), scanner.next());
+                    break;
+                case "register":
+                    handleRegister(scanner.next(), scanner.next(), scanner.next());
+                    break;
+            }
         }
     }
 
@@ -70,9 +91,9 @@ public class ClientMain {
 
     }
 
-    public static void handleLogin() {
+    public static void handleLogin(String username,String password) throws Exception {
         //login  and add name
-        //login();
+        facade.login(username,password);
         System.out.println("Logged in as NAME");
 
     }
