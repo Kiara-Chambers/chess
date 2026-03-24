@@ -8,9 +8,13 @@ import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
+import java.util.Map;
+
 public class ServerFacade {
     String serverUrl;
     private HttpClient client = HttpClient.newHttpClient();
+    Gson gson = new Gson();
     public ServerFacade(int port) {
         this.serverUrl = "http://localhost:" + port;
     }
@@ -23,17 +27,36 @@ public class ServerFacade {
     }
 
     public AuthData login(String username,String password) throws Exception {
-        var request = buildRequest("POST", "/user/register",new UserData(username,password,""));
+        var request = buildRequest("POST", "/user/login",new AuthData(username,password));
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
+    public void logout(String authToken) throws Exception {
+        var request = buildRequest("POST", "/user/logout", new AuthData(authToken,null));
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
 
+    public List<GameData> listGames() throws Exception {
+        HttpRequest request = buildRequest("GET", "/game/list", null);
+        HttpResponse<String> response = sendRequest(request);
+        return gson.fromJson(response.body(), List.class); // simple list, not typed
+    }
 
-    
+    public GameData createGame(String gameName) throws Exception {
+        GameData game = new GameData(0, null, null, gameName, null);
+        HttpRequest request = buildRequest("POST", "/game/create", game);
+        HttpResponse<String> response = sendRequest(request);
+        return handleResponse(response, GameData.class);
+    }
 
-
-
-
+    public void joinGame(int gameID, String playerColor, String username) throws Exception {
+        GameData game = new GameData(gameID, playerColor.equals("WHITE") ? username : null,
+                playerColor.equals("BLACK") ? username : null, null, null);
+        HttpRequest request = buildRequest("POST", "/game/join", game);
+        HttpResponse<String> response = sendRequest(request);
+        handleResponse(response, null);
+    }
 
     //helpers
     private HttpRequest buildRequest(String method, String path, Object body) {
