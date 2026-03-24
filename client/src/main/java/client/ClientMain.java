@@ -1,18 +1,21 @@
 package client;
 
 import chess.*;
+import model.AuthData;
 import ui.EscapeSequences;
 
 import java.util.Objects;
+import java.util.Scanner;
 
 public class ClientMain {
     public static ServerFacade facade;
     public static boolean loggedIn = false;
+     Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
-        //drawChessBoard("WHITE");
+        drawChessBoard("WHITE");
         //drawChessBoard("BLACK");
 
         //menu
@@ -22,7 +25,7 @@ public class ClientMain {
     public static void menu() {
     }
 
-    public static void help() {
+    public void help() {
         if(!loggedIn) {
             System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
             System.out.println("login <USERNAME> <PASSWORD> - to play chess");
@@ -39,35 +42,42 @@ public class ClientMain {
         }
     }
 
-    public static void register() {
+    public void handleRegister() throws Exception {
         System.out.println("Enter your username:");
+        String username = scanner.nextLine();
         System.out.println("Enter your password:");
+        String password = scanner.nextLine();
         System.out.println("Enter your email:");
-        register(username,password, email);
+        String email = scanner.nextLine();
+
+        AuthData authData = facade.register(username,password, email);
+        loggedIn=true;
+
         System.out.println("Registered and logged in as NAME");
+
     }
 
-    public static void login() {
+    public  void handleLogin() {
         //login  and add name
-        login();
+        //login();
         System.out.println("Logged in as NAME");
 
     }
 
-    public static void logout() {
-        logout();
+    public void handleLogout() {
+        //logout();
     }
 
-    public static void listGames() {
-        listGames();
+    public void handleListGames() {
+        //listGames();
     }
 
-    public static void createGame() {
-        createGame();
+    public void handleCreateGame() {
+        //createGame();
     }
 
-    public static void joinGame() {
-        joinGame();
+    public void handleJoinGame() {
+        //joinGame();
     }
 
 
