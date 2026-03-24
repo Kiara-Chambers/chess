@@ -43,17 +43,19 @@ public class ServerFacade {
     }
 
 
-    public List<GameData> listGames() throws Exception {
-        HttpRequest request = buildRequest("GET", "/game", null);
+    public List<?> listGames(String authToken) throws Exception {
+        HttpRequest request = buildRequestWithAuth("GET", "/game", null, authToken);
         HttpResponse<String> response = sendRequest(request);
-        return gson.fromJson(response.body(), List.class); // simple list, not typed
+        return (List<?>) gson.fromJson(gson.fromJson(response.body(), Map.class).get("games").toString(), List.class);
     }
 
     public GameData createGame(String gameName,String authToken) throws Exception {
         GameData game = new GameData(0, null, null, gameName, null);
         HttpRequest request = buildRequestWithAuth("POST", "/game", game, authToken);
         HttpResponse<String> response = sendRequest(request);
-        return handleResponse(response, GameData.class);
+        var map = new Gson().fromJson(response.body(), Map.class);
+        int gameID = ((Double) map.get("gameID")).intValue();
+        return new GameData(gameID, null, null, gameName, null);
     }
 
     public void joinGame(int gameID, String playerColor, String authToken) throws Exception {

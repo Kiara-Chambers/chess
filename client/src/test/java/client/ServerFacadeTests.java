@@ -70,7 +70,7 @@ public class ServerFacadeTests {
     void listGamesPositive() throws Exception {
         var authData = facade.register("player1", "password", "p1@email.com");
         facade.createGame("ChessGame1", authData.authToken());
-        List<?> games = facade.listGames();
+        List<?> games = facade.listGames(authData.authToken());
         assertNotNull(games);
         assertEquals(1, games.size());
     }
@@ -78,7 +78,7 @@ public class ServerFacadeTests {
     @Test
     void listGamesNegative() throws Exception {
         var authData = facade.register("player1", "password", "p1@email.com");
-        List<?> games = facade.listGames();
+        List<?> games = facade.listGames(authData.authToken());
         assertNotNull(games);
         assertEquals(0, games.size());
     }
