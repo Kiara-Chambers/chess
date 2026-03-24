@@ -32,7 +32,7 @@ public class ClientMain {
                 if((i+j)%2==0){
                     board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK+EscapeSequences.EMPTY;
                 }else{
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_WHITE+EscapeSequences.EMPTY;
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE+EscapeSequences.EMPTY;
                 }
             }
 
