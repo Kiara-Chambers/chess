@@ -4,6 +4,7 @@ import chess.*;
 import model.AuthData;
 import ui.EscapeSequences;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -12,7 +13,7 @@ public class ClientMain {
     public static boolean loggedIn = false;
      static Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
         drawChessBoard("WHITE");
@@ -22,24 +23,29 @@ public class ClientMain {
 
 
     public static void menu() throws Exception {
-        String userInput = scanner.nextLine();
+        String userInput = scanner.next();
+        userInput = userInput.toLowerCase();
         switch(userInput){
             case "help":
                 help();
+                break;
             case "quit":
                 quit();
+                break;
             case "login":
                 handleLogin();
+                break;
             case "register":
-                handleRegister();
+                handleRegister(scanner.next(),scanner.next(),scanner.next());
+                break;
         }
     }
 
-    public static void help() {
+    public static void help() throws Exception {
         if(!loggedIn) {
             System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
             System.out.println("login <USERNAME> <PASSWORD> - to play chess");
-            System.out.println("quit - quit playing chess");
+            System.out.println("quit - playing chess");
             System.out.println("help - list possible actions");
         }else{
             System.out.println("create <NAME> - a game");
@@ -50,23 +56,17 @@ public class ClientMain {
             System.out.println("quit - playing chess");
             System.out.println("help - list possible actions");
         }
+        menu();
     }
     public static void quit(){
-        System.out.println("You have sucessfully quit the program.\nThanks for playing!");
+        System.out.println("You have successfully quit the program.\nThanks for playing!");
     }
 
-    public static void handleRegister() throws Exception {
-        System.out.println("Enter your username:");
-        String username = scanner.nextLine();
-        System.out.println("Enter your password:");
-        String password = scanner.nextLine();
-        System.out.println("Enter your email:");
-        String email = scanner.nextLine();
-
+    public static void handleRegister(String username, String password, String email) throws Exception {
         AuthData authData = facade.register(username,password, email);
         loggedIn=true;
 
-        System.out.println("Registered and logged in as NAME");
+        System.out.println("Registered and logged in as "+username);
 
     }
 
