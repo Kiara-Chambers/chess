@@ -13,6 +13,8 @@ public class ClientMain {
     public static boolean loggedIn = false;
     static Scanner scanner = new Scanner(System.in);
 
+    static String authToken;
+
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
@@ -98,6 +100,7 @@ public class ClientMain {
     public static void handleRegister(String username, String password, String email) throws Exception {
         try {
             AuthData authData = facade.register(username, password, email);
+            authToken = authData.authToken();
             loggedIn = true;
             System.out.println("Registered and logged in as " + username);
             menu();
@@ -118,9 +121,10 @@ public class ClientMain {
 
     }
 
-    public static void handleLogout(String authToken) throws Exception {
+    public static void handleLogout() throws Exception {
         try {
             facade.logout(authToken);
+            authToken=null;
             loggedIn = false;
             System.out.println("You've logged out successfully");
             menu();
