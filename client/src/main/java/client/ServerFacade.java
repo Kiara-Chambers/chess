@@ -37,10 +37,11 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
     public void logout(String authToken) throws Exception {
-        var request = buildRequest("POST", "/user", new AuthData(authToken,null));
-        var response = sendRequest(request);
+        HttpRequest request = buildRequestWithAuth("DELETE", "/session", null, authToken);
+        HttpResponse<String> response = sendRequest(request);
         handleResponse(response, null);
     }
+
 
     public List<GameData> listGames() throws Exception {
         HttpRequest request = buildRequest("GET", "/game", null);
@@ -48,22 +49,37 @@ public class ServerFacade {
         return gson.fromJson(response.body(), List.class); // simple list, not typed
     }
 
-    public GameData createGame(String gameName) throws Exception {
+    public GameData createGame(String gameName,String authToken) throws Exception {
         GameData game = new GameData(0, null, null, gameName, null);
-        HttpRequest request = buildRequest("POST", "/game", game);
+        HttpRequest request = buildRequestWithAuth("POST", "/game", game, authToken);
         HttpResponse<String> response = sendRequest(request);
         return handleResponse(response, GameData.class);
     }
 
-    public void joinGame(int gameID, String playerColor, String username) throws Exception {
-        GameData game = new GameData(gameID, playerColor.equals("WHITE") ? username : null,
-                playerColor.equals("BLACK") ? username : null, null, null);
-        HttpRequest request = buildRequest("POST", "/game", game);
+    public void joinGame(int gameID, String playerColor, String username, String authToken) throws Exception {
+        GameData game = new GameData(gameID,
+                playerColor.equals("WHITE") ? username : null,
+                playerColor.equals("BLACK") ? username : null,
+                null, null);
+        HttpRequest request = buildRequestWithAuth("POST", "/game", game, authToken);
         HttpResponse<String> response = sendRequest(request);
         handleResponse(response, null);
     }
 
     //helpers
+    private HttpRequest buildRequestWithAuth(String method, String path, Object body,String authToken) {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + path))
+                .method(method, makeRequestBody(body));
+        if (body != null) {
+            request.setHeader("Content-Type", "application/json");
+        }
+        if(authToken!=null){
+            request.setHeader("Authorization",authToken);
+        }
+        return request.build();
+    }
+
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
@@ -71,6 +87,7 @@ public class ServerFacade {
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
         }
+
         return request.build();
     }
 
