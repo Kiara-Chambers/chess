@@ -323,7 +323,7 @@ public class ClientMain {
             for (int r = 7; r >= 0; r--) {
                 System.out.print((8 - r) + " ");
                 for (int c = 7; c >= 0; c--) {
-                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(r + 1, c + 1));
+                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(8-r, 8-c));
                     System.out.print(board[r][c] + getPieceSymbol(piece));                }
                 System.out.println(EscapeSequences.RESET_BG_COLOR);
             }
