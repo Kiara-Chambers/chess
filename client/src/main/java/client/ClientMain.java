@@ -1,5 +1,9 @@
 package client;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.AuthData;
 import model.GameData;
 import ui.EscapeSequences;
@@ -212,16 +216,31 @@ public class ClientMain {
             System.out.println("failed to observe game");
         }
     }
+    public static String getPieceSymbol(ChessPiece piece) {
+        if (piece == null) return EscapeSequences.EMPTY;
 
+        String symbol = switch (piece.getPieceType()) {
+            case KING -> " ♔ ";
+            case QUEEN -> " ♕ ";
+            case ROOK -> " ♖ ";
+            case BISHOP -> " ♗ ";
+            case KNIGHT -> " ♘ ";
+            case PAWN -> " ♙ ";
+        };
+        return symbol;
+    }
 
     public static void drawChessBoard(String perspective) {
+        ChessBoard chessBoard = new ChessBoard();
+        chessBoard.resetBoard();
+
         String[][] board = new String[8][8];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if ((i + j) % 2 == 0) {
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY;
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
                 } else {
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE + EscapeSequences.EMPTY;
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
                 }
             }
         }
@@ -230,8 +249,8 @@ public class ClientMain {
             for (int r = 7; r >= 0; r--) {
                 System.out.print((8 - r) + " ");
                 for (int c = 7; c >= 0; c--) {
-                    System.out.print(board[r][c]);
-                }
+                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(r + 1, c + 1));
+                    System.out.print(board[r][c] + getPieceSymbol(piece));                }
                 System.out.println(EscapeSequences.RESET_BG_COLOR);
             }
             System.out.println("  h   g   f   e   d   c   b   a");
@@ -241,8 +260,8 @@ public class ClientMain {
                 for (int r = 7; r >= 0; r--) {
                     System.out.print((r + 1) + " ");
                     for (int c = 0; c < 8; c++) {
-                        System.out.print(board[r][c]);
-                    }
+                        ChessPiece piece = chessBoard.getPiece(new ChessPosition(r + 1, c + 1));
+                        System.out.print(board[r][c] + getPieceSymbol(piece));                    }
                     System.out.println(EscapeSequences.RESET_BG_COLOR);
                 }
                 System.out.println("  a   b   c   d   e   f   g   h");
