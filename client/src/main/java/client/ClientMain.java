@@ -9,6 +9,7 @@ import model.GameData;
 import ui.EscapeSequences;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -29,7 +30,9 @@ public class ClientMain {
     }
 
     public static void menu() throws Exception {
-        String userInput = scanner.next();
+
+        String[] parts = scanner.nextLine().split(" ");
+        String userInput = parts[0].toLowerCase();
 
         userInput = userInput.toLowerCase();
         if (!loggedIn) {
@@ -41,10 +44,18 @@ public class ClientMain {
                     quit();
                     break;
                 case "login":
-                    handleLogin(scanner.next(), scanner.next());
+                    if (parts.length < 3) {
+                        System.out.println("Try again and use like this: login <username> <password>");
+                        menu();
+                    }
+                    handleLogin(parts[1],parts[2]);
                     break;
                 case "register":
-                    handleRegister(scanner.next(), scanner.next(), scanner.next());
+                    if (parts.length < 4) {
+                        System.out.println("Try again and use like this: register <username> <password> <email>");
+                        menu();
+                    }
+                    handleRegister(parts[1], parts[2], parts[3]);
                     break;
                 default:
                     System.out.println("Please enter a valid option");
@@ -55,16 +66,29 @@ public class ClientMain {
         } else {
             switch (userInput) {
                 case "create":
-                    handleCreateGame(scanner.next());
+                    if (parts.length < 2) {
+                        System.out.println("Try again and use like this: create <NAME>");
+                        menu();
+                    }
+                    handleCreateGame(parts[1]);
                     break;
                 case "list":
                     handleListGames();
                     break;
                 case "join":
-                    handleJoinGame(scanner.next(),scanner.next());
+                    if (parts.length < 3) {
+                        System.out.println("Try again and use like this: join <NUMBER> <WHITE|BLACK>");
+                        menu();
+                    }
+                    handleJoinGame(parts[1], parts[2]);
                     break;
                 case "observe":
-                    handleObserveGame(scanner.next());
+                    if (parts.length < 2) {
+                        System.out.println("Try again and use like this: observe <NUMBER>");
+                        menu();
+                        return;
+                    }
+                    handleObserveGame(parts[1]);
                     break;
                 case "logout":
                     handleLogout();
