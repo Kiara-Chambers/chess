@@ -219,15 +219,26 @@ public class ClientMain {
     public static String getPieceSymbol(ChessPiece piece) {
         if (piece == null) return EscapeSequences.EMPTY;
 
-        String symbol = switch (piece.getPieceType()) {
-            case KING -> " ♔ ";
-            case QUEEN -> " ♕ ";
-            case ROOK -> " ♖ ";
-            case BISHOP -> " ♗ ";
-            case KNIGHT -> " ♘ ";
-            case PAWN -> " ♙ ";
-        };
-        return symbol;
+        if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
+            return switch (piece.getPieceType()) {
+                case KING -> " ♔ ";
+                case QUEEN -> " ♕ ";
+                case ROOK -> " ♖ ";
+                case BISHOP -> " ♗ ";
+                case KNIGHT -> " ♘ ";
+                case PAWN -> " ♙ ";
+            };
+        }else{
+            return switch (piece.getPieceType()) {
+                case KING -> " ♚ ";
+                case QUEEN -> " ♛ ";
+                case ROOK -> " ♜ ";
+                case BISHOP -> " ♝ ";
+                case KNIGHT -> " ♞ ";
+                case PAWN -> " ♟ ";
+            };
+        }
+
     }
 
     public static void drawChessBoard(String perspective) {
