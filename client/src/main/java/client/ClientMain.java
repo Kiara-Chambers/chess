@@ -86,7 +86,6 @@ public class ClientMain {
                     if (parts.length < 2) {
                         System.out.println("Try again and use like this: observe <NUMBER>");
                         menu();
-                        return;
                     }
                     handleObserveGame(parts[1]);
                     break;
@@ -116,8 +115,8 @@ public class ClientMain {
         } else {
             System.out.println("create <NAME> - a game");
             System.out.println("list - games");
-            System.out.println("join <ID> [WHITE][BLACK] - a game");
-            System.out.println("observe <ID> - a game");
+            System.out.println("join <NUMBER> <WHITE or BLACK> - a game");
+            System.out.println("observe <NUMBER> - a game");
             System.out.println("logout - when you're done");
             System.out.println("quit - playing chess");
             System.out.println("help - list possible actions");
@@ -173,7 +172,7 @@ public class ClientMain {
     public static void handleListGames() throws Exception {
         try {
             lastGames = facade.listGames(authToken);
-            if(lastGames.isEmpty()){
+            if(lastGames==null||lastGames.isEmpty()){
                 System.out.println("There are currently no games");
             }else {
 
@@ -184,8 +183,8 @@ public class ClientMain {
                     Object whiteObj = map.get("whiteUsername");
                     Object blackObj = map.get("blackUsername");
 
-                    String white = (whiteObj != null) ? whiteObj.toString() : "null";
-                    String black = (blackObj != null) ? blackObj.toString() : "null";
+                    String white = (whiteObj != null) ? whiteObj.toString() : "None";
+                    String black = (blackObj != null) ? blackObj.toString() : "None";
 
                     System.out.println((i + 1) + ". " + name
                             + "\n    White: " + white
@@ -214,15 +213,20 @@ public class ClientMain {
     public static void handleJoinGame(String id, String color) throws Exception {
         try {
             int index = Integer.parseInt(id) - 1;
-
+            String team = color.toUpperCase();
+            if (!team.equals("WHITE") && !team.equals("BLACK")) {
+                System.out.println("Color must be WHITE or BLACK.");
+                menu();
+                return;
+            }
             if (lastGames == null || lastGames.isEmpty()) {
-                System.out.println("No games loaded. Run list before joining.");
+                System.out.println("No games loaded. Run list before joining and pick a number from the list.");
                 menu();
                 return;
             }
             //gotta be within the list
             if (index < 0 || index >= lastGames.size()) {
-                System.out.println("Invalid game number.");
+                System.out.println("Invalid game number. You can can run create to make a new game. You can then run list to update available games.");
                 menu();
                 return;
             }
@@ -252,9 +256,18 @@ public class ClientMain {
     }
     public static void handleObserveGame(String gameID) throws Exception {
         try {
-            if(lastGames.isEmpty()){
+            if(lastGames==null||lastGames.isEmpty()){
                 System.out.println("No games available. Run create and list first.");
                 menu();
+                return;
+            }
+
+            int index = Integer.parseInt(gameID) - 1;
+
+            if (index < 0 || index >= lastGames.size()) {
+                System.out.println("Invalid game number.");
+                menu();
+                return;
             }
             System.out.println("You are observing the game!");
             drawChessBoard("WHITE");
