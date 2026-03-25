@@ -15,6 +15,8 @@ import java.util.Scanner;
 
 import static java.lang.System.exit;
 
+//make the pieces swap spots
+//parameters observe
 public class ClientMain {
     public static ServerFacade facade;
     public static boolean loggedIn = false;
@@ -44,14 +46,14 @@ public class ClientMain {
                     quit();
                     break;
                 case "login":
-                    if (parts.length < 3) {
+                    if (parts.length !=2) {
                         System.out.println("Try again and use like this: login <username> <password>");
                         menu();
                     }
                     handleLogin(parts[1],parts[2]);
                     break;
                 case "register":
-                    if (parts.length < 4) {
+                    if (parts.length != 3) {
                         System.out.println("Try again and use like this: register <username> <password> <email>");
                         menu();
                     }
@@ -66,7 +68,7 @@ public class ClientMain {
         } else {
             switch (userInput) {
                 case "create":
-                    if (parts.length < 2) {
+                    if (parts.length !=1) {
                         System.out.println("Try again and use like this: create <NAME>");
                         menu();
                     }
@@ -76,14 +78,14 @@ public class ClientMain {
                     handleListGames();
                     break;
                 case "join":
-                    if (parts.length < 3) {
+                    if (parts.length !=2) {
                         System.out.println("Try again and use like this: join <NUMBER> <WHITE|BLACK>");
                         menu();
                     }
                     handleJoinGame(parts[1], parts[2]);
                     break;
                 case "observe":
-                    if (parts.length < 2) {
+                    if (parts.length !=1) {
                         System.out.println("Try again and use like this: observe <NUMBER>");
                         menu();
                     }
