@@ -46,11 +46,11 @@ public class ClientMain {
                     quit();
                     break;
                 case "login":
-                    if (parts.length !=3) {
+                    if (parts.length != 3) {
                         System.out.println("Try again and use like this: login <username> <password>");
                         menu();
                     }
-                    handleLogin(parts[1],parts[2]);
+                    handleLogin(parts[1], parts[2]);
                     break;
                 case "register":
                     if (parts.length != 4) {
@@ -68,7 +68,7 @@ public class ClientMain {
         } else {
             switch (userInput) {
                 case "create":
-                    if (parts.length !=2) {
+                    if (parts.length != 2) {
                         System.out.println("Try again and use like this: create <NAME>");
                         menu();
                     }
@@ -78,14 +78,14 @@ public class ClientMain {
                     handleListGames();
                     break;
                 case "join":
-                    if (parts.length !=3) {
+                    if (parts.length != 3) {
                         System.out.println("Try again and use like this: join <NUMBER> <WHITE|BLACK>");
                         menu();
                     }
                     handleJoinGame(parts[1], parts[2]);
                     break;
                 case "observe":
-                    if (parts.length !=2) {
+                    if (parts.length != 2) {
                         System.out.println("Try again and use like this: observe <NUMBER>");
                         menu();
                     }
@@ -149,7 +149,7 @@ public class ClientMain {
             AuthData authData = facade.login(username, password);
             authToken = authData.authToken();
             loggedIn = true;
-            System.out.println("Logged in as " + username+"!\nEnter Help to see what commands are available.");
+            System.out.println("Logged in as " + username + "!\nEnter Help to see what commands are available.");
             menu();
         } catch (Exception e) {
             System.out.println("username or password is wrong. Please reattempt the command.");
@@ -161,7 +161,7 @@ public class ClientMain {
     public static void handleLogout() throws Exception {
         try {
             facade.logout(authToken);
-            authToken=null;
+            authToken = null;
             loggedIn = false;
             System.out.println("You've logged out successfully");
             menu();
@@ -174,9 +174,9 @@ public class ClientMain {
     public static void handleListGames() throws Exception {
         try {
             lastGames = facade.listGames(authToken);
-            if(lastGames==null||lastGames.isEmpty()){
+            if (lastGames == null || lastGames.isEmpty()) {
                 System.out.println("There are currently no games");
-            }else {
+            } else {
 
                 for (int i = 0; i < lastGames.size(); i++) {
                     var map = (java.util.Map<?, ?>) lastGames.get(i);
@@ -204,14 +204,15 @@ public class ClientMain {
 
     public static void handleCreateGame(String gameName) throws Exception {
         try {
-            facade.createGame(gameName,authToken);
-            System.out.println("The game "+gameName+" has been created");
+            facade.createGame(gameName, authToken);
+            System.out.println("The game " + gameName + " has been created");
             menu();
         } catch (Exception e) {
             System.out.println("failed to create game");
             menu();
         }
     }
+
     public static void handleJoinGame(String id, String color) throws Exception {
         try {
             int index = Integer.parseInt(id) - 1;
@@ -256,9 +257,10 @@ public class ClientMain {
             menu();
         }
     }
+
     public static void handleObserveGame(String gameID) throws Exception {
         try {
-            if(lastGames==null||lastGames.isEmpty()){
+            if (lastGames == null || lastGames.isEmpty()) {
                 System.out.println("No games available. Run create and list first.");
                 menu();
                 return;
@@ -279,10 +281,13 @@ public class ClientMain {
             menu();
         }
     }
-    public static String getPieceSymbol(ChessPiece piece) {
-        if (piece == null) {return EscapeSequences.EMPTY;}
 
-        if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
+    public static String getPieceSymbol(ChessPiece piece) {
+        if (piece == null) {
+            return EscapeSequences.EMPTY;
+        }
+
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             return switch (piece.getPieceType()) {
                 case KING -> " ♔ ";
                 case QUEEN -> " ♕ ";
@@ -291,7 +296,7 @@ public class ClientMain {
                 case KNIGHT -> " ♘ ";
                 case PAWN -> " ♙ ";
             };
-        }else{
+        } else {
             return switch (piece.getPieceType()) {
                 case KING -> " ♚ ";
                 case QUEEN -> " ♛ ";
@@ -304,6 +309,7 @@ public class ClientMain {
 
     }
 
+    //pos is right for k/q just need to make black persp show black pieces, not white
     public static void drawChessBoard(String perspective) {
         ChessBoard chessBoard = new ChessBoard();
         chessBoard.resetBoard();
@@ -311,45 +317,43 @@ public class ClientMain {
         String[][] board = new String[8][8];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if(Objects.equals(perspective, "BLACK")) {
-                    if ((i + j) % 2 == 0) {
-                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
-                    } else {
-                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
-                    }
-                }else{
-                    if ((i + j) % 2 == 0) {
-                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
-                    } else {
-                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
-                    }
+                if ((i + j) % 2 == 0) {
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
+                } else {
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
                 }
             }
         }
 
-        if (Objects.equals(perspective, "BLACK")) {
+
+        if (perspective.equalsIgnoreCase("black")) {
             for (int r = 7; r >= 0; r--) {
                 System.out.print((8 - r) + " ");
-                for (int c = 7; c >= 0; c--) {
-                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(8-r, 8-c));
-                    System.out.print(board[r][c] + getPieceSymbol(piece));                }
+                for (int c = 0; c < 8; c++) {
+
+                    int boardRow = 8 - r;
+                    int boardCol = 8 - c;
+
+                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(boardRow, boardCol));
+                    System.out.print(board[r][c] + getPieceSymbol(piece));
+                }
                 System.out.println(EscapeSequences.RESET_BG_COLOR);
             }
-            System.out.println("  h   g   f   e   d   c   b   a");
+        } else if (perspective.equalsIgnoreCase("white")) {
+            for (int r = 7; r >= 0; r--) {
+                System.out.print((r + 1) + " ");
+                for (int c = 0; c < 8; c++) {
 
-        } else if (Objects.equals(perspective, "WHITE")) {
-            {
-                for (int r = 7; r >= 0; r--) {
-                    System.out.print((r + 1) + " ");
-                    for (int c = 0; c < 8; c++) {
-                        ChessPiece piece = chessBoard.getPiece(new ChessPosition(r + 1, c + 1));
-                        System.out.print(board[r][c] + getPieceSymbol(piece));                    }
-                    System.out.println(EscapeSequences.RESET_BG_COLOR);
+                    int boardRow = r + 1;
+                    int boardCol = c + 1;
+
+                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(boardRow, boardCol));
+                    System.out.print(board[r][c] + getPieceSymbol(piece));
                 }
-                System.out.println("  a   b   c   d   e   f   g   h");
-
+                System.out.println(EscapeSequences.RESET_BG_COLOR);
             }
-
         }
+        System.out.println("  h   g   f   e   d   c   b   a");
+
     }
 }
