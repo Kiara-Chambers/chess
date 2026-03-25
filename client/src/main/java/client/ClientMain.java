@@ -190,9 +190,15 @@ public class ClientMain {
     public static void handleJoinGame(String id, String color) throws Exception {
         try {
             int index = Integer.parseInt(id) - 1;
-            //List<?> gameList = facade.listGames(authToken);
+
             if (lastGames == null || lastGames.isEmpty()) {
                 System.out.println("No games loaded. Run list before joining.");
+                menu();
+                return;
+            }
+            //gotta be within the list
+            if (index < 0 || index >= lastGames.size()) {
+                System.out.println("Invalid game number.");
                 menu();
                 return;
             }
@@ -222,6 +228,10 @@ public class ClientMain {
     }
     public static void handleObserveGame(String gameID) throws Exception {
         try {
+            if(lastGames.isEmpty()){
+                System.out.println("No games available. Run create and list first.");
+                menu();
+            }
             System.out.println("You are observing the game!");
             drawChessBoard("WHITE");
             menu();
