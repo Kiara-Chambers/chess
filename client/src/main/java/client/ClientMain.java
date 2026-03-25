@@ -311,10 +311,18 @@ public class ClientMain {
         String[][] board = new String[8][8];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if ((i + j) % 2 == 0) {
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
-                } else {
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
+                if(Objects.equals(perspective, "BLACK")) {
+                    if ((i + j) % 2 == 0) {
+                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
+                    } else {
+                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
+                    }
+                }else{
+                    if ((i + j) % 2 == 0) {
+                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
+                    } else {
+                        board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
+                    }
                 }
             }
         }
