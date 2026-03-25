@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static java.lang.System.exit;
+
 public class ClientMain {
     public static ServerFacade facade;
     public static boolean loggedIn = false;
@@ -101,6 +103,7 @@ public class ClientMain {
 
     public static void quit() {
         System.out.println("You have successfully quit the program.\nThanks for playing!");
+        exit(0);
     }
 
     public static void handleRegister(String username, String password, String email) throws Exception {
@@ -112,6 +115,7 @@ public class ClientMain {
             menu();
         } catch (Exception e) {
             System.out.println("error with registration");
+            menu();
         }
     }
 
@@ -138,10 +142,11 @@ public class ClientMain {
             menu();
         } catch (Exception e) {
             System.out.println("failed to log out");
+            menu();
         }
     }
 
-    public static void handleListGames() {
+    public static void handleListGames() throws Exception {
         try {
             lastGames = facade.listGames(authToken);
             if(lastGames.isEmpty()){
@@ -167,53 +172,62 @@ public class ClientMain {
             menu();
         } catch (Exception e) {
             System.out.println("failed to list games");
-            e.printStackTrace();
+            menu();
+            //e.printStackTrace();
         }
     }
 
-    public static void handleCreateGame(String gameName) {
+    public static void handleCreateGame(String gameName) throws Exception {
         try {
             facade.createGame(gameName,authToken);
             System.out.println("The game "+gameName+" has been created");
             menu();
         } catch (Exception e) {
             System.out.println("failed to create game");
+            menu();
         }
     }
     public static void handleJoinGame(String id, String color) throws Exception {
-        int index = Integer.parseInt(id) - 1;
-        //List<?> gameList = facade.listGames(authToken);
-        if (lastGames == null || lastGames.isEmpty()) {
-            System.out.println("No games loaded. Run list before joining.");
+        try {
+            int index = Integer.parseInt(id) - 1;
+            //List<?> gameList = facade.listGames(authToken);
+            if (lastGames == null || lastGames.isEmpty()) {
+                System.out.println("No games loaded. Run list before joining.");
+                menu();
+                return;
+            }
+            java.util.Map<?, ?> map = (java.util.Map<?, ?>) lastGames.get(index);
+
+            Object idObj = map.get("gameID");
+            int gameID;
+
+            if (idObj instanceof Double) {
+                gameID = ((Double) idObj).intValue();
+            } else if (idObj instanceof Integer) {
+                gameID = (Integer) idObj;
+            } else {
+                gameID = Integer.parseInt(idObj.toString());
+            }
+            String name = (String) map.get("gameName");
+            facade.joinGame(gameID, color.toUpperCase(), authToken);
+
+            System.out.println("You've successfully joined the game " + name + "!");
+
+            drawChessBoard(color.toUpperCase());
             menu();
-            return;
+        } catch (Exception e) {
+            System.out.println("retry with valid input");
+            menu();
         }
-        java.util.Map<?, ?> map = (java.util.Map<?, ?>) lastGames.get(index);
-
-        Object idObj = map.get("gameID");
-        int gameID;
-
-        if (idObj instanceof Double) {
-            gameID = ((Double) idObj).intValue();
-        } else if (idObj instanceof Integer) {
-            gameID = (Integer) idObj;
-        } else {
-            gameID = Integer.parseInt(idObj.toString());
-        }        String name = (String)map.get("gameName");
-        facade.joinGame(gameID, color.toUpperCase(), authToken);
-
-        System.out.println("You've successfully joined the game "+name+"!");
-
-        drawChessBoard(color.toUpperCase());
-        menu();
     }
-    public static void handleObserveGame(String gameID) {
+    public static void handleObserveGame(String gameID) throws Exception {
         try {
             System.out.println("You are observing the game!");
             drawChessBoard("WHITE");
             menu();
         } catch (Exception e) {
             System.out.println("failed to observe game");
+            menu();
         }
     }
     public static String getPieceSymbol(ChessPiece piece) {
