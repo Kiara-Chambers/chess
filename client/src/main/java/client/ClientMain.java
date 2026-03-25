@@ -14,6 +14,7 @@ public class ClientMain {
     static Scanner scanner = new Scanner(System.in);
 
     static String authToken;
+    static List<?> lastGames;
 
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
@@ -138,23 +139,31 @@ public class ClientMain {
 
     public static void handleListGames() {
         try {
-            List<?> gameList = facade.listGames(authToken);
+            lastGames = facade.listGames(authToken);
+            if(lastGames.isEmpty()){
+                System.out.println("There are currently no games");
+            }else {
 
-            for (int i = 0; i < gameList.size(); i++) {
-                var map = (java.util.Map<?, ?>) gameList.get(i);
+                for (int i = 0; i < lastGames.size(); i++) {
+                    var map = (java.util.Map<?, ?>) lastGames.get(i);
 
-                String name = (String) map.get("gameName");
-                String white = (String) map.get("whiteUsername");
-                String black = (String) map.get("blackUsername");
+                    String name = (String) map.get("gameName");
+                    Object whiteObj = map.get("whiteUsername");
+                    Object blackObj = map.get("blackUsername");
 
-                System.out.println((i + 1) + ". " + name
-                        + "\n    White: " + white
-                        + "\n    Black: " + black);
+                    String white = (whiteObj != null) ? whiteObj.toString() : "null";
+                    String black = (blackObj != null) ? blackObj.toString() : "null";
+
+                    System.out.println((i + 1) + ". " + name
+                            + "\n    White: " + white
+                            + "\n    Black: " + black);
+                }
             }
 
             menu();
         } catch (Exception e) {
             System.out.println("failed to list games");
+            e.printStackTrace();
         }
     }
 
@@ -169,11 +178,24 @@ public class ClientMain {
     }
     public static void handleJoinGame(String id, String color) throws Exception {
         int index = Integer.parseInt(id) - 1;
-        List<?> gameList = facade.listGames(authToken);
-        java.util.Map<?, ?> map = (java.util.Map<?, ?>) gameList.get(index);
+        //List<?> gameList = facade.listGames(authToken);
+        if (lastGames == null || lastGames.isEmpty()) {
+            System.out.println("No games loaded. Run list before joining.");
+            menu();
+            return;
+        }
+        java.util.Map<?, ?> map = (java.util.Map<?, ?>) lastGames.get(index);
 
-        int gameID = ((Double) map.get("gameID")).intValue();
-        String name = (String)map.get("gameName");
+        Object idObj = map.get("gameID");
+        int gameID;
+
+        if (idObj instanceof Double) {
+            gameID = ((Double) idObj).intValue();
+        } else if (idObj instanceof Integer) {
+            gameID = (Integer) idObj;
+        } else {
+            gameID = Integer.parseInt(idObj.toString());
+        }        String name = (String)map.get("gameName");
         facade.joinGame(gameID, color.toUpperCase(), authToken);
 
         System.out.println("You've successfully joined the game "+name+"!");
