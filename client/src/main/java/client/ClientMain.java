@@ -58,6 +58,7 @@ public class ClientMain {
                     break;
                 case "observe":
                     handleObserveGame(scanner.next());
+                    break;
                 case "logout":
                     handleLogout();
                     break;
@@ -166,14 +167,25 @@ public class ClientMain {
             System.out.println("failed to create game");
         }
     }
+    public static void handleJoinGame(String id, String color) throws Exception {
+        int index = Integer.parseInt(id) - 1;
+        List<?> gameList = facade.listGames(authToken);
+        java.util.Map<?, ?> map = (java.util.Map<?, ?>) gameList.get(index);
 
-    public static void handleJoinGame(String id, String color) {
-        //joinGame();
+        int gameID = ((Double) map.get("gameID")).intValue();
+        String name = (String)map.get("gameName");
+        facade.joinGame(gameID, color.toUpperCase(), authToken);
+
+        System.out.println("You've successfully joined the game "+name+"!");
+
+        drawChessBoard(color.toUpperCase());
+        menu();
     }
-
     public static void handleObserveGame(String gameID) {
         try {
+            System.out.println("You are observing the game!");
             drawChessBoard("WHITE");
+            menu();
         } catch (Exception e) {
             System.out.println("failed to observe game");
         }
