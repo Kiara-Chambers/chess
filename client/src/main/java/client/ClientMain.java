@@ -228,7 +228,7 @@ public class ClientMain {
             }
             //gotta be within the list
             if (index < 0 || index >= lastGames.size()) {
-                System.out.println("Invalid game number. You can can run create to make a new game. You can then run list to update available games.");
+                System.out.println("Invalid game number. Run create to make a new game. You can then run list to update available games.");
                 menu();
                 return;
             }
@@ -280,7 +280,7 @@ public class ClientMain {
         }
     }
     public static String getPieceSymbol(ChessPiece piece) {
-        if (piece == null) return EscapeSequences.EMPTY;
+        if (piece == null) {return EscapeSequences.EMPTY;}
 
         if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
             return switch (piece.getPieceType()) {
