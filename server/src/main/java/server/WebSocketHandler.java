@@ -32,25 +32,44 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     @Override
     public void handleMessage(WsMessageContext ctx) throws DataAccessException {
-        UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
-        switch (command.getCommandType()) {
-            case CONNECT -> {
-                System.out.println("Connect");
-                var authData =authDAO.getAuth(command.getAuthToken());
-                if(authData==null){
-                    ctx.send(gson.toJson("Unauthorized"));
-                    return;
+        try {
+            UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
+            switch (command.getCommandType()) {
+                case CONNECT -> {
+                    System.out.println("Connect");
+                    var authData = authDAO.getAuth(command.getAuthToken());
+                    if (authData == null) {
+                        ctx.send(gson.toJson("Error: Unauthorized"));
+                        return;
+                    }
+                    var gameData = gameDAO.getGame(command.getGameID());
+                    if (gameData == null) {
+                        ctx.send(gson.toJson("Error: Game's Invalid"));
+                        return;
+                    }
+                    ctx.send(gson.toJson(gameData));
                 }
-                var gameData = gameDAO.getGame(command.getGameID());
-                if(gameData==null){
-                    ctx.send(gson.toJson("Game's Invalid"));
-                    return;
+                case MAKE_MOVE -> {
+                    System.out.println("Move");
+                    var gameData = gameDAO.getGame(command.getGameID());
+                    if (gameData == null) {
+                        ctx.send(gson.toJson("Error: Game's Invalid"));
+                        return;
+                    }
+                    gameDAO.updateGame(gameData);
+                    ctx.send(gson.toJson(gameData));
+
                 }
-                ctx.send(gson.toJson(gameData));
+                case LEAVE -> {
+                    System.out.println("Leave");
+                }
+                case RESIGN -> {
+                    System.out.println("Resign");
+                }
             }
-            case MAKE_MOVE -> System.out.println("Move");
-            case LEAVE -> System.out.println("Leave");
-            case RESIGN -> System.out.println("Resign");
+        }catch (DataAccessException e){
+            ctx.send("Error :(");
+
         }
 
     }
