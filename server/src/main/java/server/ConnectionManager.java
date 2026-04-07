@@ -9,7 +9,7 @@ public class ConnectionManager {
     public final ConcurrentHashMap<Session, Session> connections = new ConcurrentHashMap<>();
 
     public void add(Session session) {
-        connections.put(session, session);
+        connections.putIfAbsent(session, session);
     }
 
     public void remove(Session session) {
@@ -26,4 +26,6 @@ public class ConnectionManager {
             }
         }
     }
+
+
 }

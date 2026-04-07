@@ -1,5 +1,7 @@
 package server;
 
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -67,30 +69,44 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     System.out.println("Move");
                     var authData = authDAO.getAuth(command.getAuthToken());
                     if (authData == null) {
-                        ctx.send(gson.toJson("Error: Unauthorized"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Unauthorized")));
                         return;
                     }
                     var gameData = gameDAO.getGame(command.getGameID());
                     if (gameData == null) {
-                        ctx.send(gson.toJson("Error: Game's Invalid"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Game's Invalid")));
                         return;
                     }
-                    //move
+                    ChessMove move = new ChessMove(command.getMove().getStartPosition(),
+                            command.getMove().getEndPosition(),
+                            command.getMove().getPromotionPiece());
+                    gameData.game().makeMove(move);
                     gameDAO.updateGame(gameData);
-                    ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
-                            "game",gameData)));
+
+                    connections.broadcast(ctx.session, new Notification(
+                            "NOTIFICATION",
+                            authData.username() + " moved!"
+                    ));
+                    ctx.send(gson.toJson(new Notification(
+                            "NOTIFICATION",
+                            authData.username() + " moved!"
+                    )));
                 }
                 case LEAVE -> {
                     System.out.println("Leave");
 
                     var authData = authDAO.getAuth(command.getAuthToken());
                     if (authData == null) {
-                        ctx.send(gson.toJson("Error: Unauthorized"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Unauthorized")));
                         return;
                     }
                     var gameData = gameDAO.getGame(command.getGameID());
                     if (gameData == null) {
-                        ctx.send(gson.toJson("Error: Game's Invalid"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Game's Invalid")));
                         return;
                     }
                     //leave
@@ -102,22 +118,38 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     System.out.println("Resign");
                     var authData = authDAO.getAuth(command.getAuthToken());
                     if (authData == null) {
-                        ctx.send(gson.toJson("Error: Unauthorized"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Unauthorized")));
                         return;
                     }
                     var gameData = gameDAO.getGame(command.getGameID());
                     if (gameData == null) {
-                        ctx.send(gson.toJson("Error: Game's Invalid"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Game's Invalid")));
                         return;
                     }
-                    ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
-                            "game",gameData)));                }
+                    //connections.add(ctx.session);
+                    gameDAO.updateGame(gameData);
+                    connections.broadcast(ctx.session, new Notification(
+                            "NOTIFICATION",
+                            authData.username() + " resigned!"
+                    ));
+                    ctx.send(gson.toJson(new Notification(
+                            "NOTIFICATION",
+                            authData.username() + " resigned!"
+                    )));
+
+                }
             }
         }catch (DataAccessException e){
             ctx.send("Error :(");
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: :(")));
+        } catch (InvalidMoveException e) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Invalid move")));
         }
 
     }
