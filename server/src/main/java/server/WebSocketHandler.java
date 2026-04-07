@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
@@ -30,14 +31,26 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleMessage(WsMessageContext ctx) {
+    public void handleMessage(WsMessageContext ctx) throws DataAccessException {
         UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
         switch (command.getCommandType()) {
-            case CONNECT -> System.out.println("Connect");
+            case CONNECT -> {
+                System.out.println("Connect");
+                var authData =authDAO.getAuth(command.getAuthToken());
+                if(authData==null){
+                    ctx.send(gson.toJson("Unauthorized"));
+                    return;
+                }
+                var gameData = gameDAO.getGame(command.getGameID());
+                if(gameData==null){
+                    ctx.send(gson.toJson("Game's Invalid"));
+                    return;
+                }
+                ctx.send(gson.toJson(gameData));
+            }
             case MAKE_MOVE -> System.out.println("Move");
             case LEAVE -> System.out.println("Leave");
             case RESIGN -> System.out.println("Resign");
-            //case EXIT -> exit(action.visitorName(), ctx.session);
         }
 
     }
