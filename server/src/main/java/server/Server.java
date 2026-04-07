@@ -10,6 +10,7 @@ import io.javalin.http.UnauthorizedResponse;
 import model.GameData;
 import model.UserData;
 import org.jetbrains.annotations.NotNull;
+import passoff.websocket.WebsocketTestingEnvironment;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -27,14 +28,14 @@ public class Server {
     ClearService clearService;
 
     AuthDAO authDAO;
-
+    GameDAO gameDAO;
 
     public Server() {
         try{
             DatabaseManager.createDatabase();
 
             var userDAO = new MySQLUserDAO();
-            var gameDAO = new MySQLGameDAO();
+            this.gameDAO = new MySQLGameDAO();
             this.authDAO = new MySQLAuthDAO();
 
             userService = new UserService(userDAO, authDAO);
@@ -45,9 +46,14 @@ public class Server {
         }
 
 
+        WebSocketHandler webSocketHandler = new WebSocketHandler(authDAO,gameDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-
+        javalin.ws("/ws",ws->{
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
         // Register your endpoints and exception handlers here.
         javalin.delete("/db", this::clearHandler);
 
