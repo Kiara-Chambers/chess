@@ -13,11 +13,13 @@ import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
 import websocket.commands.UserGameCommand;
 
-import javax.management.Notification;
+import java.io.IOException;
 import java.util.Map;
 
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
+    private final ConnectionManager connections = new ConnectionManager();
+
     private final Gson gson = new Gson();
     AuthDAO authDAO;
     GameDAO gameDAO;
@@ -50,6 +52,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         ctx.send(gson.toJson("Error: Game's Invalid"));
                         return;
                     }
+
+                    connections.add(ctx.session);
+                    connections.broadcast(ctx.session, new Notification(
+                            "NOTIFICATION",
+                            authData.username() + " joined!"
+                    ));
                     ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
                             "game",gameData)));
                 }
@@ -106,6 +114,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }catch (DataAccessException e){
             ctx.send("Error :(");
 
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
     }
