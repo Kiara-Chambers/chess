@@ -44,12 +44,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     System.out.println("Connect");
                     var authData = authDAO.getAuth(command.getAuthToken());
                     if (authData == null) {
-                        ctx.send(gson.toJson("Error: Unauthorized"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Unauthorized")));
                         return;
                     }
                     var gameData = gameDAO.getGame(command.getGameID());
                     if (gameData == null) {
-                        ctx.send(gson.toJson("Error: Game's Invalid"));
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Game's Invalid")));
                         return;
                     }
 
