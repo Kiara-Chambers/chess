@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     private final ConnectionManager connections = new ConnectionManager();
-    Set<String> resignedPlayers = new HashSet<>();
+    private final Set<String> resignedPlayers = new HashSet<>();
 
     private final Gson gson = new Gson();
     AuthDAO authDAO;
@@ -83,13 +83,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
-
-                    //resigning
-                    if(resignedPlayers.contains(authData.username())){
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Player has resigned, you can't move")));
+                    String gameKey = String.valueOf(gameData.gameID());
+                    if (resignedPlayers.contains(gameKey)) {
+                        ctx.send(gson.toJson(Map.of(
+                                "serverMessageType","ERROR",
+                                "errorMessage","Error: Game is already over"
+                        )));
                         return;
                     }
+
                     String currentPlayer;
                     if (gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
                         currentPlayer = gameData.whiteUsername();
@@ -183,6 +185,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
+                    String gameKey = String.valueOf(gameData.gameID());
+                    if (resignedPlayers.contains(gameKey)) {
+                        ctx.send(gson.toJson(Map.of(
+                                "serverMessageType","ERROR",
+                                "errorMessage","Error: Game is already over"
+                        )));
+                        return;
+                    }
                     //resign -but only if you're playing...
                     if(!authData.username().equals(gameData.whiteUsername())
                             &&!authData.username().equals(gameData.blackUsername())){
@@ -191,15 +201,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         return;
                     }
 
-                    //why would you resign twice...
-                    if(resignedPlayers.contains(authData.username())){
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error:Already resigned")));
-                        return;
-                    }
 
-
-                    resignedPlayers.add(authData.username());
+                    resignedPlayers.add(gameKey);
                     gameDAO.updateGame(gameData);
                     connections.broadcast(ctx.session, new Notification(
                             "NOTIFICATION",
