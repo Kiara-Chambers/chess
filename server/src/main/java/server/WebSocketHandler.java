@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
@@ -89,13 +90,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Player has resigned, you can't move")));
                         return;
                     }
-
+                    String currentPlayer;
+                    if (gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
+                        currentPlayer = gameData.whiteUsername();
+                    } else {
+                        currentPlayer = gameData.blackUsername();
+                    }
+                    if (!authData.username().equals(currentPlayer)) {
+                        ctx.send(gson.toJson(Map.of(
+                                "serverMessageType","ERROR",
+                                "errorMessage","Not your turn")));
+                        return;
+                    }
 
                     ChessMove move = new ChessMove(command.getMove().getStartPosition(),
                             command.getMove().getEndPosition(),
                             command.getMove().getPromotionPiece());
                     gameData.game().makeMove(move);
                     gameDAO.updateGame(gameData);
+
+
+
 
                     ctx.send(gson.toJson(Map.of(
                             "serverMessageType","LOAD_GAME",
