@@ -13,7 +13,6 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
-import model.AuthData;
 import model.GameData;
 import websocket.commands.UserGameCommand;
 
@@ -108,6 +107,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                             command.getMove().getEndPosition(),
                             command.getMove().getPromotionPiece());
                     gameData.game().makeMove(move);
+
                     gameDAO.updateGame(gameData);
 
 
@@ -130,6 +130,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                     "game",gameData
                             )));
                         }
+                    }
+                    if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
+                            gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                        connections.broadcast(null, new Notification(
+                                "NOTIFICATION",
+                                "Game over!"
+                        ));
                     }
                 }
                 case LEAVE -> {
