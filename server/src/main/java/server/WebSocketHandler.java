@@ -14,6 +14,7 @@ import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
 import model.AuthData;
+import model.GameData;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
@@ -146,7 +147,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
-                    //leave
+                    //remove them from teh game
+                    if (authData.username().equals(gameData.whiteUsername())) {
+                        gameData=new GameData(gameData.gameID(),null,gameData.blackUsername(),gameData.gameName(),gameData.game());
+                    } else if (authData.username().equals(gameData.blackUsername())) {
+                        gameData=new GameData(gameData.gameID(),gameData.whiteUsername(),null,gameData.gameName(),gameData.game());
+                    }
                     gameDAO.updateGame(gameData);
                     connections.remove(ctx.session);
 
