@@ -105,6 +105,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                             "NOTIFICATION",
                             authData.username() + " moved!"
                     )));
+
+                    connections.broadcast(ctx.session, new Notification("LOAD_GAME", gson.toJson(Map.of(
+                            "serverMessageType", "LOAD_GAME",
+                            "game", gameData
+                    ))));
+
                 }
                 case LEAVE -> {
                     System.out.println("Leave");
@@ -125,6 +131,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     gameDAO.updateGame(gameData);
                     ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
                             "game",gameData)));
+                    connections.broadcast(ctx.session, new Notification("LOAD_GAME", gson.toJson(Map.of(
+                            "serverMessageType", "LOAD_GAME",
+                            "game", gameData
+                    ))));
                 }
                 case RESIGN -> {
                     System.out.println("Resign");
@@ -167,6 +177,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                             "NOTIFICATION",
                             authData.username() + " resigned!"
                     )));
+
 
                 }
             }
