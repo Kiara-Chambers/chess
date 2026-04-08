@@ -97,20 +97,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     gameData.game().makeMove(move);
                     gameDAO.updateGame(gameData);
 
+                    ctx.send(gson.toJson(Map.of(
+                            "serverMessageType","LOAD_GAME",
+                            "game",gameData
+                    )));
+
                     connections.broadcast(ctx.session, new Notification(
                             "NOTIFICATION",
                             authData.username() + " moved!"
                     ));
-                    ctx.send(gson.toJson(new Notification(
-                            "NOTIFICATION",
-                            authData.username() + " moved!"
-                    )));
 
-                    connections.broadcast(ctx.session, new Notification("LOAD_GAME", gson.toJson(Map.of(
-                            "serverMessageType", "LOAD_GAME",
-                            "game", gameData
-                    ))));
-
+                    for (var session : connections.connections.values()) {
+                        if (session.isOpen() && !session.equals(ctx.session)) {
+                            session.getRemote().sendString(gson.toJson(Map.of(
+                                    "serverMessageType","LOAD_GAME",
+                                    "game",gameData
+                            )));
+                        }
+                    }
                 }
                 case LEAVE -> {
                     System.out.println("Leave");
