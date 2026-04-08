@@ -16,11 +16,14 @@ import model.AuthData;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
     private final ConnectionManager connections = new ConnectionManager();
+    Set<String> resignedPlayers = new HashSet<>();
 
     private final Gson gson = new Gson();
     AuthDAO authDAO;
@@ -79,6 +82,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
+
+                    //resigning
+                    if(resignedPlayers.contains(authData.username())){
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Player has resigned, you can't move")));
+                        return;
+                    }
+
+
                     ChessMove move = new ChessMove(command.getMove().getStartPosition(),
                             command.getMove().getEndPosition(),
                             command.getMove().getPromotionPiece());
@@ -128,7 +140,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
-                    //connections.add(ctx.session);
+                    //resign
+                    resignedPlayers.add(authData.username());
                     gameDAO.updateGame(gameData);
                     connections.broadcast(ctx.session, new Notification(
                             "NOTIFICATION",
