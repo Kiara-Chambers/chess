@@ -128,6 +128,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 }
                 case RESIGN -> {
                     System.out.println("Resign");
+
                     var authData = authDAO.getAuth(command.getAuthToken());
                     if (authData == null) {
                         ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
@@ -140,7 +141,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
-                    //resign
+                    //resign -but only if you're playing...
+                    if(!authData.username().equals(gameData.whiteUsername())
+                            &&!authData.username().equals(gameData.blackUsername())){
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error: Observers can't resign")));
+                        return;
+                    }
+
+                    //why would you resign twice...
+                    if(resignedPlayers.contains(authData.username())){
+                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                                "errorMessage","Error:Already resigned")));
+                        return;
+                    }
+
+
                     resignedPlayers.add(authData.username());
                     gameDAO.updateGame(gameData);
                     connections.broadcast(ctx.session, new Notification(
