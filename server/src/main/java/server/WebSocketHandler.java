@@ -60,12 +60,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
+                    connections.add(command.getGameID(), ctx.session);
 
-                    connections.add(ctx.session);
-                    connections.broadcast(ctx.session, new Notification(
-                            "NOTIFICATION",
-                            authData.username() + " joined!"
-                    ));
+                    connections.broadcast(command.getGameID(), ctx.session,
+                            new Notification("NOTIFICATION", authData.username() + " joined!")
+                    );
                     ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
                             "game",gameData)));
                 }
@@ -83,7 +82,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "errorMessage","Error: Game's Invalid")));
                         return;
                     }
-                    String gameKey = String.valueOf(gameData.gameID());
+                    int gameID = command.getGameID();
+                    String gameKey = String.valueOf(gameID);
                     if (resignedPlayers.contains(gameKey)) {
                         ctx.send(gson.toJson(Map.of(
                                 "serverMessageType","ERROR",
@@ -101,44 +101,43 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     if (!authData.username().equals(currentPlayer)) {
                         ctx.send(gson.toJson(Map.of(
                                 "serverMessageType","ERROR",
-                                "errorMessage","Not your turn")));
+                                "errorMessage","Not your turn"
+                        )));
                         return;
                     }
 
-                    ChessMove move = new ChessMove(command.getMove().getStartPosition(),
+                    ChessMove move = new ChessMove(
+                            command.getMove().getStartPosition(),
                             command.getMove().getEndPosition(),
-                            command.getMove().getPromotionPiece());
-                    gameData.game().makeMove(move);
+                            command.getMove().getPromotionPiece()
+                    );
 
+                    gameData.game().makeMove(move);
                     gameDAO.updateGame(gameData);
 
-
-
-
-                    ctx.send(gson.toJson(Map.of(
+                    var loadGameMsg = gson.toJson(Map.of(
                             "serverMessageType","LOAD_GAME",
                             "game",gameData
-                    )));
-
-                    connections.broadcast(ctx.session, new Notification(
-                            "NOTIFICATION",
-                            authData.username() + " moved!"
                     ));
 
-                    for (var session : connections.connections.values()) {
-                        if (session.isOpen() && !session.equals(ctx.session)) {
-                            session.getRemote().sendString(gson.toJson(Map.of(
-                                    "serverMessageType","LOAD_GAME",
-                                    "game",gameData
-                            )));
+                    for (var session : connections.getGameSessions(gameID)) {
+                        if (session.isOpen()) {
+                            session.getRemote().sendString(loadGameMsg);
                         }
                     }
+
+                    connections.broadcast(gameID, ctx.session,
+                            new Notification("NOTIFICATION", authData.username() + " moved!")
+                    );
+
                     if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
                             gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                        connections.broadcast(null, new Notification(
-                                "NOTIFICATION",
-                                "Game over!"
-                        ));
+
+                        resignedPlayers.add(gameKey);
+
+                        connections.broadcast(gameID, null,
+                                new Notification("NOTIFICATION", "Game over!")
+                        );
                     }
                 }
                 case LEAVE -> {
@@ -163,12 +162,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         gameData=new GameData(gameData.gameID(),gameData.whiteUsername(),null,gameData.gameName(),gameData.game());
                     }
                     gameDAO.updateGame(gameData);
-                    connections.remove(ctx.session);
+                    //connections.remove(ctx.session);
 
-                    connections.broadcast(ctx.session, new Notification(
-                            "NOTIFICATION",
-                            authData.username() + " left the game!"
-                    ));
+                    connections.remove(command.getGameID(), ctx.session);
+
+                    connections.broadcast(command.getGameID(), ctx.session,
+                            new Notification("NOTIFICATION", authData.username() + " left the game!")
+                    );
                 }
                 case RESIGN -> {
                     System.out.println("Resign");
@@ -204,10 +204,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                     resignedPlayers.add(gameKey);
                     gameDAO.updateGame(gameData);
-                    connections.broadcast(ctx.session, new Notification(
-                            "NOTIFICATION",
-                            authData.username() + " resigned!"
-                    ));
+                    connections.broadcast(command.getGameID(), ctx.session,
+                            new Notification("NOTIFICATION", authData.username() + " resigned!")
+                    );
                     ctx.send(gson.toJson(new Notification(
                             "NOTIFICATION",
                             authData.username() + " resigned!"
