@@ -137,7 +137,7 @@ public class ClientHandlers {
             ws.connect(authToken,gameID);
             currentGameID =gameID;
             inGame = true;
-            chessBoard.resetBoard();
+            //chessBoard.resetBoard();
             menu();
         } catch (Exception e) {
             System.out.println("retry with valid input");

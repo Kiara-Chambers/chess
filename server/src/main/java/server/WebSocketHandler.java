@@ -58,7 +58,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 new Notification("NOTIFICATION", username + " joined!")
         );
         ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
-                "game",gameData)));
+                "game",gameData.game())));
     }
     void makeMove(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException {
         System.out.println("Move");

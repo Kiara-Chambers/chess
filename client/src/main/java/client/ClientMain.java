@@ -181,6 +181,7 @@ public class ClientMain implements NotificationHandler{
 
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             currentGame = message.getGame();
+            System.out.println("TURN: " + currentGame.getTeamTurn());
 
             if (currentGame == null) {
                 System.out.println("ERROR: game is null in LOAD_GAME");
