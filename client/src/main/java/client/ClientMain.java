@@ -34,12 +34,9 @@ public class ClientMain implements NotificationHandler{
             menu();
         }
     }
-
     public static void menu() throws Exception {
-
         String[] parts = scanner.nextLine().split(" ");
         String userInput = parts[0].toLowerCase();
-
         if (!loggedIn) {
             switch (userInput) {
                 case "help":
@@ -139,7 +136,6 @@ public class ClientMain implements NotificationHandler{
             }
         }
     }
-
     public static void help() {
         if (!loggedIn) {
             System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
@@ -165,16 +161,13 @@ public class ClientMain implements NotificationHandler{
             }
         }
     }
-
     public static void quit() {
         System.out.println("You have successfully quit the program.\nThanks for playing!");
         exit(0);
     }
-
     @Override
     public void notify(ServerMessage message) {
         System.out.println("WS IN: " + message.getServerMessageType());
-
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             currentGame = message.getGame();
             if (currentGame == null) {
