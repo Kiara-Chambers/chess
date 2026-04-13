@@ -253,7 +253,6 @@ public class ClientMain implements NotificationHandler{
         } catch (Exception e) {
             System.out.println("failed to list games");
             menu();
-            //e.printStackTrace();
         }
     }
 
@@ -310,7 +309,6 @@ public class ClientMain implements NotificationHandler{
             currentGameID =gameID;
             inGame = true;
             chessBoard.resetBoard();
-            //drawChessBoard(team);
             menu();
         } catch (Exception e) {
             System.out.println("retry with valid input");
@@ -337,6 +335,7 @@ public class ClientMain implements NotificationHandler{
 
             inGame= true;
             currentGameID= Integer.parseInt(gameID);
+            pers ="WHITE";
             ws.connect(authToken, Integer.parseInt(gameID));
 
             drawChessBoard("WHITE");
@@ -348,7 +347,7 @@ public class ClientMain implements NotificationHandler{
     }
     public static void handleMakeMove(String sr, String sc, String er, String ec, String promo) throws Exception {
         try {
-            //I made it be like the fancy chess notation: c1 g3 etc
+            //I made it be like the fancy chess notation
             int srInt = Integer.parseInt(sr);
             int scInt = letterToNum(sc);
 
@@ -547,49 +546,53 @@ public class ClientMain implements NotificationHandler{
 
 
     }
-    public static void drawChessBoardWithHighlights(String perspective, ChessPosition selected, java.util.Collection<ChessMove> moves) {
+    public static void drawChessBoardWithHighlights(String perspective,
+                                                    ChessPosition selected,
+                                                    java.util.Collection<ChessMove> moves) {
+
         java.util.Set<ChessPosition> highlights = new java.util.HashSet<>();
         for (ChessMove m : moves) {
             highlights.add(m.getEndPosition());
         }
 
         String[][] board = new String[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPosition pos = new ChessPosition(i + 1, j + 1);
+        boolean blackView = perspective.equalsIgnoreCase("black");
 
-                //the piece we wanna see the moves for
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+
+                ChessPosition pos = blackView
+                        ? new ChessPosition(row + 1, 8 - col)
+                        : new ChessPosition(8 - row, col + 1);
+
+                boolean isLightSquare = (pos.getRow() + pos.getColumn()) % 2 == 0;
+
                 if (pos.equals(selected)) {
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_YELLOW;
+                    board[row][col] = EscapeSequences.SET_BG_COLOR_YELLOW;
                 } else if (highlights.contains(pos)) {
-                    //and this is the color of possible moves
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_GREEN;
-                } else if ((i + j) % 2 == 0) {
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
+                    board[row][col] = EscapeSequences.SET_BG_COLOR_GREEN;
                 } else {
-                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
+                    board[row][col] = isLightSquare
+                            ? EscapeSequences.SET_BG_COLOR_BLACK
+                            : EscapeSequences.SET_BG_COLOR_BLUE;
                 }
             }
         }
 
-        if (perspective.equalsIgnoreCase("white")) {
-            for (int r = 7; r >= 0; r--) {
-                System.out.print((r + 1) + " ");
-                for (int c = 0; c < 8; c++) {
-                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(r + 1, c + 1));
-                    System.out.print(board[r][c] + getPieceSymbol(piece));
-                }
-                System.out.println(EscapeSequences.RESET_BG_COLOR);
+        for (int row = 0; row < 8; row++) {
+            System.out.print((blackView ? row + 1 : 8 - row) + " ");
+
+            for (int col = 0; col < 8; col++) {
+
+                ChessPosition pos = blackView
+                        ? new ChessPosition(row + 1, 8 - col)
+                        : new ChessPosition(8 - row, col + 1);
+
+                ChessPiece piece = chessBoard.getPiece(pos);
+                System.out.print(board[row][col] + getPieceSymbol(piece));
             }
-        } else {
-            for (int r = 7; r >= 0; r--) {
-                System.out.print((8 - r) + " ");
-                for (int c = 0; c < 8; c++) {
-                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(8 - r, 8 - c));
-                    System.out.print(board[r][c] + getPieceSymbol(piece));
-                }
-                System.out.println(EscapeSequences.RESET_BG_COLOR);
-            }
+
+            System.out.println(EscapeSequences.RESET_BG_COLOR);
         }
 
         printBottomLabels(perspective);
