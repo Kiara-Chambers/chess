@@ -203,7 +203,7 @@ public class ClientHandlers {
             ChessMove move = new ChessMove(start, end,promotion);
 
             ws.makeMove(authToken, currentGameID, move);
-            System.out.println("You've made a move!");
+           // System.out.println("You've made a move!");
 
             menu();
         } catch (Exception e) {

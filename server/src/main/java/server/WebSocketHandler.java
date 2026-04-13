@@ -71,6 +71,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         if (gameData == null) {
             return;
         }
+//        System.out.println("USERNAME: " + username);
+//        System.out.println("TURN: " + gameData.game().getTeamTurn());
+//        System.out.println("WHITE: " + gameData.whiteUsername());
+//        System.out.println("BLACK: " + gameData.blackUsername());
         int gameID = command.getGameID();
         String gameKey = String.valueOf(gameID);
         if (resignedPlayers.contains(gameKey)) {
@@ -101,12 +105,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 command.getMove().getPromotionPiece()
         );
 
+        //System.out.println("BEFORE MOVE");
         gameData.game().makeMove(move);
+        //System.out.println("AFTER MOVE");
         gameDAO.updateGame(gameData);
 
         var loadGameMsg = gson.toJson(Map.of(
-                "serverMessageType","LOAD_GAME",
-                "game",gameData
+                "serverMessageType", "LOAD_GAME",
+                "game", gameData.game()
         ));
 
         for (var session : connections.getGameSessions(gameID)) {
@@ -221,10 +227,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (IOException e) {
             ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
                     "errorMessage","Error: :(")));
-        } catch (InvalidMoveException e) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Invalid move")));
-        }
+        }  catch (InvalidMoveException e) {
+        System.out.println("INVALID MOVE: " + e.getMessage());
+        ctx.send(gson.toJson(Map.of(
+                "serverMessageType","ERROR",
+                "errorMessage", e.getMessage()
+        )));
+    }
 
     }
 

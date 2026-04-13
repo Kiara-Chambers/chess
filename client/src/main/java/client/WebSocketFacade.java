@@ -52,23 +52,26 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void makeMove(String authToken, int gameID, ChessMove move) throws Exception {
+        Map<String, Object> moveMap = new java.util.HashMap<>();
+        moveMap.put("startPosition", Map.of(
+                "row", move.getStartPosition().getRow(),
+                "col", move.getStartPosition().getColumn()
+        ));
+        moveMap.put("endPosition", Map.of(
+                "row", move.getEndPosition().getRow(),
+                "col", move.getEndPosition().getColumn()
+        ));
+        if (move.getPromotionPiece() != null) {
+            moveMap.put("promotionPiece", move.getPromotionPiece());
+        }
+
         send(Map.of(
                 "commandType", "MAKE_MOVE",
                 "authToken", authToken,
                 "gameID", gameID,
-                "move", Map.of(
-                        "start", Map.of(
-                                "row", move.getStartPosition().getRow(),
-                                "col", move.getStartPosition().getColumn()
-                        ),
-                        "end", Map.of(
-                                "row", move.getEndPosition().getRow(),
-                                "col", move.getEndPosition().getColumn()
-                        )
-                )
+                "move", moveMap
         ));
     }
-
     public void leave(String authToken, int gameID) throws Exception {
         send(Map.of(
                 "commandType", "LEAVE",

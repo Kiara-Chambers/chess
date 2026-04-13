@@ -178,15 +178,26 @@ public class ClientMain implements NotificationHandler{
     @Override
     public void notify(ServerMessage message) {
         System.out.println("WS IN: " + message.getServerMessageType());
+
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             currentGame = message.getGame();
+
             if (currentGame == null) {
                 System.out.println("ERROR: game is null in LOAD_GAME");
                 return;
             }
+
             chessBoard = currentGame.getBoard();
-            drawChessBoard(chessBoard,pers);
-        } else {
+            drawChessBoard(chessBoard, pers);
+            return;
+        }
+
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            System.out.println("SERVER ERROR: " + message.getMessage());
+            return;
+        }
+
+        if (message.getMessage() != null) {
             System.out.println(message.getMessage());
         }
     }
