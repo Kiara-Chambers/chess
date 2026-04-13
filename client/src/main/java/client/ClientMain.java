@@ -5,25 +5,22 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.AuthData;
-import model.GameData;
 import ui.EscapeSequences;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+
 import java.util.Scanner;
 
 import static java.lang.System.exit;
 
-//make the pieces swap spots
-//parameters amount
-public class ClientMain {
+public class ClientMain{
     public static ServerFacade facade;
     public static boolean loggedIn = false;
     static Scanner scanner = new Scanner(System.in);
 
     static String authToken;
     static List<?> lastGames;
+    static WebSocketFacade ws;
 
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
@@ -133,6 +130,10 @@ public class ClientMain {
 
     public static void handleRegister(String username, String password, String email) throws Exception {
         try {
+            ws = new WebSocketFacade(
+                    "http://localhost:8080",
+                    message -> System.out.println("ws: " + message)
+            );
             AuthData authData = facade.register(username, password, email);
             authToken = authData.authToken();
             loggedIn = true;
@@ -146,6 +147,10 @@ public class ClientMain {
 
     public static void handleLogin(String username, String password) throws Exception {
         try {
+            ws = new WebSocketFacade(
+                    "http://localhost:8080",
+                    message -> System.out.println("ws: " + message)
+            );
             AuthData authData = facade.login(username, password);
             authToken = authData.authToken();
             loggedIn = true;
@@ -233,7 +238,7 @@ public class ClientMain {
                 menu();
                 return;
             }
-            java.util.Map<?, ?> map = (java.util.Map<?, ?>) lastGames.get(index);
+            var map = (java.util.Map<?, ?>) lastGames.get(index);
 
             Object idObj = map.get("gameID");
             int gameID;
@@ -245,12 +250,13 @@ public class ClientMain {
             } else {
                 gameID = Integer.parseInt(idObj.toString());
             }
+
             String name = (String) map.get("gameName");
             facade.joinGame(gameID, color.toUpperCase(), authToken);
 
             System.out.println("You've successfully joined the game " + name + "!");
-
-            drawChessBoard(color.toUpperCase());
+            ws.connect(authToken,gameID);
+            drawChessBoard(team);
             menu();
         } catch (Exception e) {
             System.out.println("retry with valid input");
@@ -274,6 +280,7 @@ public class ClientMain {
                 return;
             }
             System.out.println("You are observing the game!");
+            ws.connect(authToken, Integer.parseInt(gameID));
             drawChessBoard("WHITE");
             menu();
         } catch (Exception e) {

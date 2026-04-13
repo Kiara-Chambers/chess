@@ -15,6 +15,9 @@ public class ServerFacade {
     String serverUrl;
     private HttpClient client = HttpClient.newHttpClient();
     Gson gson = new Gson();
+
+    private WebSocket webSocket;
+
     public ServerFacade(int port) {
         this.serverUrl = "http://localhost:" + port;
     }
