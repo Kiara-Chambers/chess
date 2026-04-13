@@ -43,10 +43,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void connect(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException {
         System.out.println("Connect");
         String username = requireAuth(command, ctx);
-        if (username == null) return;
+        if (username == null) {
+            return;
+        }
 
         GameData gameData = requireGame(command, ctx);
-        if (gameData == null) return;
+        if (gameData == null) {
+            return;
+        }
 
         connections.add(command.getGameID(), ctx.session);
 
@@ -59,10 +63,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     void makeMove(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException {
         System.out.println("Move");
         String username = requireAuth(command, ctx);
-        if (username == null) return;
+        if (username == null) {
+            return;
+        }
 
         GameData gameData = requireGame(command, ctx);
-        if (gameData == null) return;
+        if (gameData == null) {
+            return;
+        }
         int gameID = command.getGameID();
         String gameKey = String.valueOf(gameID);
         if (resignedPlayers.contains(gameKey)) {
@@ -125,10 +133,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Leave");
 
         String username = requireAuth(command, ctx);
-        if (username == null) return;
+        if (username == null) {
+            return;
+        }
 
         GameData gameData = requireGame(command, ctx);
-        if (gameData == null) return;
+        if (gameData == null) {
+            return;
+        }
         //remove them from teh game
         if (username.equals(gameData.whiteUsername())) {
             gameData=new GameData(gameData.gameID(),null,gameData.blackUsername(),gameData.gameName(),gameData.game());
@@ -148,10 +160,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Resign");
 
         String username = requireAuth(command, ctx);
-        if (username == null) return;
+        if (username == null) {
+            return;
+        }
 
         GameData gameData = requireGame(command, ctx);
-        if (gameData == null) return;
+        if (gameData == null) {
+            return;
+        }
         String gameKey = String.valueOf(gameData.gameID());
         if (resignedPlayers.contains(gameKey)) {
             ctx.send(gson.toJson(Map.of(
