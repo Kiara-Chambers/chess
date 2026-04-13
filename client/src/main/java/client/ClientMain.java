@@ -1,11 +1,9 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import model.AuthData;
 import ui.EscapeSequences;
+import websocket.messages.ServerMessage;
 
 import java.util.List;
 
@@ -13,10 +11,16 @@ import java.util.Scanner;
 
 import static java.lang.System.exit;
 
-public class ClientMain{
+public class ClientMain implements NotificationHandler{
     public static ServerFacade facade;
     public static boolean loggedIn = false;
     static Scanner scanner = new Scanner(System.in);
+
+    static ChessBoard chessBoard = new ChessBoard();
+    static ChessGame currentGame;
+    static String pers = "WHITE";
+    static int currentGameID;
+    static boolean inGame = false;
 
     static String authToken;
     static List<?> lastGames;
@@ -55,6 +59,14 @@ public class ClientMain{
                         menu();
                     }
                     handleRegister(parts[1], parts[2], parts[3]);
+                    break;
+                case "move":
+                    if (parts.length != 5) {
+                        System.out.println("Usage: move <sr> <sc> <er> <ec>");
+                        menu();
+                        break;
+                    }
+                    handleMakeMove(parts[1], parts[2], parts[3], parts[4]);
                     break;
                 default:
                     System.out.println("Please enter a valid option");
@@ -112,13 +124,20 @@ public class ClientMain{
             System.out.println("quit - playing chess");
             System.out.println("help - list possible actions");
         } else {
-            System.out.println("create <NAME> - a game");
-            System.out.println("list - games");
-            System.out.println("join <NUMBER> <WHITE or BLACK> - a game");
-            System.out.println("observe <NUMBER> - a game");
-            System.out.println("logout - when you're done");
-            System.out.println("quit - playing chess");
-            System.out.println("help - list possible actions");
+            if (!inGame) {
+                System.out.println("create <NAME> - a game");
+                System.out.println("list - games");
+                System.out.println("join <NUMBER> <WHITE or BLACK> - a game");
+                System.out.println("observe <NUMBER> - a game");
+                System.out.println("logout - when you're done");
+                System.out.println("quit - playing chess");
+                System.out.println("help - list possible actions");
+            } else {
+                System.out.println("move <START_ROW> <START_COL> <END_ROW> <END_COL> - make a chess move");
+                System.out.println("leave - leave the current game");
+                System.out.println("resign - forfeit the game");
+                System.out.println("help - list possible actions");
+            }
         }
         menu();
     }
@@ -253,9 +272,11 @@ public class ClientMain{
 
             String name = (String) map.get("gameName");
             facade.joinGame(gameID, color.toUpperCase(), authToken);
-
+            pers = team;
             System.out.println("You've successfully joined the game " + name + "!");
             ws.connect(authToken,gameID);
+            currentGameID =gameID;
+            inGame = true;
             drawChessBoard(team);
             menu();
         } catch (Exception e) {
@@ -281,10 +302,29 @@ public class ClientMain{
             }
             System.out.println("You are observing the game!");
             ws.connect(authToken, Integer.parseInt(gameID));
+            inGame= true;
+            currentGameID= Integer.parseInt(gameID);
             drawChessBoard("WHITE");
             menu();
         } catch (Exception e) {
             System.out.println("failed to observe game");
+            menu();
+        }
+    }
+    public static void handleMakeMove(String sr, String sc, String er, String ec) throws Exception {
+        try {
+            ChessPosition start = new ChessPosition(Integer.parseInt(sr), Integer.parseInt(sc));
+            ChessPosition end = new ChessPosition(Integer.parseInt(er), Integer.parseInt(ec));
+
+
+
+            ChessMove move = new ChessMove(start, end,);
+
+            ws.makeMove(authToken, currentGameID, move);
+
+            menu();
+        } catch (Exception e) {
+            System.out.println("Error: invalid move");
             menu();
         }
     }
@@ -318,8 +358,10 @@ public class ClientMain{
 
     //pos is right for k/q just need to make black persp show black pieces, not white
     public static void drawChessBoard(String perspective) {
-        ChessBoard chessBoard = new ChessBoard();
-        chessBoard.resetBoard();
+        if (chessBoard == null) {
+            chessBoard = new ChessBoard();
+            chessBoard.resetBoard();
+        }
 
         String[][] board = new String[8][8];
         for (int i = 0; i < 8; i++) {
@@ -362,5 +404,20 @@ public class ClientMain{
         }
         System.out.println("  h   g   f   e   d   c   b   a");
 
+
+    }
+
+    @Override
+    public void notify(ServerMessage message) {
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+
+            currentGame = message.getGame();
+            chessBoard = currentGame.getBoard();
+
+            drawChessBoard(pers);
+
+        } else {
+            System.out.println(message.getMessage());
+        }
     }
 }

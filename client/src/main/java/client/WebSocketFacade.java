@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 
 import jakarta.websocket.*;
@@ -30,7 +31,7 @@ public class WebSocketFacade extends Endpoint {
                 public void onMessage(String message) {
                     ServerMessage serverMessage =
                             new Gson().fromJson(message, ServerMessage.class);
-                    notificationHandler.notify();
+                    notificationHandler.notify(serverMessage);
                 }
             });
         } catch ( IOException | URISyntaxException ex) {
@@ -50,12 +51,21 @@ public class WebSocketFacade extends Endpoint {
         ));
     }
 
-    public void makeMove(String authToken, int gameID, Object move) throws Exception {
+    public void makeMove(String authToken, int gameID, ChessMove move) throws Exception {
         send(Map.of(
                 "commandType", "MAKE_MOVE",
                 "authToken", authToken,
                 "gameID", gameID,
-                "move", move
+                "move", Map.of(
+                        "start", Map.of(
+                                "row", move.getStartPosition().getRow(),
+                                "col", move.getStartPosition().getColumn()
+                        ),
+                        "end", Map.of(
+                                "row", move.getEndPosition().getRow(),
+                                "col", move.getEndPosition().getColumn()
+                        )
+                )
         ));
     }
 
