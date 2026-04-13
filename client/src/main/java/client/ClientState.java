@@ -11,7 +11,6 @@ public class ClientState {
     static String pers = "WHITE";
     static int currentGameID;
     static boolean inGame = false;
-
     static String authToken;
     static List<?> lastGames;
     static WebSocketFacade ws;
