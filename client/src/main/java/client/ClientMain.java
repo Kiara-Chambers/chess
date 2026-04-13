@@ -61,12 +61,18 @@ public class ClientMain implements NotificationHandler{
                     handleRegister(parts[1], parts[2], parts[3]);
                     break;
                 case "move":
-                    if (parts.length != 5) {
-                        System.out.println("Usage: move <sr> <sc> <er> <ec>");
+                    if (parts.length != 5 && parts.length != 6) {
+                        System.out.println("Usage: move <sr> <sc> <er> <ec> [QUEEN|ROOK|BISHOP|KNIGHT]");
                         menu();
                         break;
                     }
-                    handleMakeMove(parts[1], parts[2], parts[3], parts[4]);
+
+                    String promo = null;
+                    if (parts.length == 6) {
+                        promo = parts[5].toUpperCase();
+                    }
+
+                    handleMakeMove(parts[1], parts[2], parts[3], parts[4], promo);
                     break;
                 default:
                     System.out.println("Please enter a valid option");
@@ -150,8 +156,7 @@ public class ClientMain implements NotificationHandler{
     public static void handleRegister(String username, String password, String email) throws Exception {
         try {
             ws = new WebSocketFacade(
-                    "http://localhost:8080",
-                    message -> System.out.println("ws: " + message)
+                    "http://localhost:8080",new ClientMain()
             );
             AuthData authData = facade.register(username, password, email);
             authToken = authData.authToken();
@@ -167,8 +172,7 @@ public class ClientMain implements NotificationHandler{
     public static void handleLogin(String username, String password) throws Exception {
         try {
             ws = new WebSocketFacade(
-                    "http://localhost:8080",
-                    message -> System.out.println("ws: " + message)
+                    "http://localhost:8080",new ClientMain()
             );
             AuthData authData = facade.login(username, password);
             authToken = authData.authToken();
@@ -274,10 +278,12 @@ public class ClientMain implements NotificationHandler{
             facade.joinGame(gameID, color.toUpperCase(), authToken);
             pers = team;
             System.out.println("You've successfully joined the game " + name + "!");
+
             ws.connect(authToken,gameID);
             currentGameID =gameID;
             inGame = true;
-            drawChessBoard(team);
+            chessBoard.resetBoard();
+            //drawChessBoard(team);
             menu();
         } catch (Exception e) {
             System.out.println("retry with valid input");
@@ -301,9 +307,11 @@ public class ClientMain implements NotificationHandler{
                 return;
             }
             System.out.println("You are observing the game!");
-            ws.connect(authToken, Integer.parseInt(gameID));
+
             inGame= true;
             currentGameID= Integer.parseInt(gameID);
+            ws.connect(authToken, Integer.parseInt(gameID));
+
             drawChessBoard("WHITE");
             menu();
         } catch (Exception e) {
@@ -311,14 +319,22 @@ public class ClientMain implements NotificationHandler{
             menu();
         }
     }
-    public static void handleMakeMove(String sr, String sc, String er, String ec) throws Exception {
+    public static void handleMakeMove(String sr, String sc, String er, String ec, String promo) throws Exception {
         try {
             ChessPosition start = new ChessPosition(Integer.parseInt(sr), Integer.parseInt(sc));
             ChessPosition end = new ChessPosition(Integer.parseInt(er), Integer.parseInt(ec));
 
+            ChessPiece.PieceType promotion = null;
+            if (promo != null) {
+                switch (promo) {
+                    case "QUEEN" -> promotion = ChessPiece.PieceType.QUEEN;
+                    case "ROOK" -> promotion = ChessPiece.PieceType.ROOK;
+                    case "BISHOP" -> promotion = ChessPiece.PieceType.BISHOP;
+                    case "KNIGHT" -> promotion = ChessPiece.PieceType.KNIGHT;
+                }
+            }
 
-
-            ChessMove move = new ChessMove(start, end,);
+            ChessMove move = new ChessMove(start, end,promotion);
 
             ws.makeMove(authToken, currentGameID, move);
 
