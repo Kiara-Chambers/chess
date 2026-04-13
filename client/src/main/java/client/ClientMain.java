@@ -60,20 +60,6 @@ public class ClientMain implements NotificationHandler{
                     }
                     handleRegister(parts[1], parts[2], parts[3]);
                     break;
-                case "move":
-                    if (parts.length != 5 && parts.length != 6) {
-                        System.out.println("Usage: move <sr> <sc> <er> <ec> [QUEEN|ROOK|BISHOP|KNIGHT]");
-                        menu();
-                        break;
-                    }
-
-                    String promo = null;
-                    if (parts.length == 6) {
-                        promo = parts[5].toUpperCase();
-                    }
-
-                    handleMakeMove(parts[1], parts[2], parts[3], parts[4], promo);
-                    break;
                 default:
                     System.out.println("Please enter a valid option");
                     menu();
@@ -123,7 +109,15 @@ public class ClientMain implements NotificationHandler{
         }else{
             switch (userInput) {
                 case "move":
-                    handleMakeMove(parts[1],parts[2],parts[3],parts[4],parts[5]);
+                    if (parts.length != 5 && parts.length != 6) {
+                        System.out.println("Usage: move <sr> <sc> <er> <ec> [QUEEN|ROOK|BISHOP|KNIGHT]");
+                        menu();
+                        return;
+                    }
+
+                    String promo = (parts.length == 6) ? parts[5].toUpperCase() : null;
+
+                    handleMakeMove(parts[1], parts[2], parts[3], parts[4], promo);
                     break;
                 case "leave":
                     handleLeaveGame();
@@ -132,6 +126,11 @@ public class ClientMain implements NotificationHandler{
                     handleResign();
                     break;
                 case "highlight":
+                    if (parts.length < 3) {
+                        System.out.println("Try again and use like this: highlight <ROW> <COL>");
+                        menu();
+                        return;
+                    }
                     handleHighlightMoves(parts[1], parts[2]);
                     break;
                 case "redraw":
@@ -378,7 +377,7 @@ public class ClientMain implements NotificationHandler{
 
             menu();
         } catch (Exception e) {
-            System.out.println("Error: invalid move");
+            System.out.println("Error: invalid move"+e.getMessage());
             menu();
         }
     }
@@ -440,7 +439,8 @@ public class ClientMain implements NotificationHandler{
             menu();
 
         } catch (Exception e) {
-            System.out.println("Error showing valid  moves");
+            e.printStackTrace();
+            System.out.println("Error showing valid moves");
             menu();
         }
     }

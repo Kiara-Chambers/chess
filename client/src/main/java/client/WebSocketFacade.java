@@ -87,9 +87,11 @@ public class WebSocketFacade extends Endpoint {
 
     private void send(Object obj) throws Exception {
         try {
-            session.getBasicRemote().sendText(new Gson().toJson(obj));
+            String json = new Gson().toJson(obj);
+            System.out.println("WS OUT: " + json); // DEBUG LINE
+            session.getBasicRemote().sendText(json);
         } catch (IOException e) {
-            System.out.println("Error");
+            e.printStackTrace();
         }
     }
 }
