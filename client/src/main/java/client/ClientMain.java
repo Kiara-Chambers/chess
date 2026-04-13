@@ -136,6 +136,7 @@ public class ClientMain implements NotificationHandler{
                     break;
                 case "redraw":
                     drawChessBoard(pers);
+                    menu();
                     break;
                 case "help":
                     help();
@@ -166,6 +167,8 @@ public class ClientMain implements NotificationHandler{
                 System.out.println("move <START_ROW> <START_COL> <END_ROW> <END_COL> - make a chess move");
                 System.out.println("leave - leave the current game");
                 System.out.println("resign - forfeit the game");
+                System.out.println("highlight <ROW> <COL> - show legal moves for a piece");
+                System.out.println("redraw - redraw the chess board");
                 System.out.println("help - list possible actions");
             }
         }
@@ -345,9 +348,21 @@ public class ClientMain implements NotificationHandler{
     }
     public static void handleMakeMove(String sr, String sc, String er, String ec, String promo) throws Exception {
         try {
-            ChessPosition start = new ChessPosition(Integer.parseInt(sr), Integer.parseInt(sc));
-            ChessPosition end = new ChessPosition(Integer.parseInt(er), Integer.parseInt(ec));
+            //I made it be like the fancy chess notation: c1 g3 etc
+            int srInt = Integer.parseInt(sr);
+            int scInt = letterToNum(sc);
 
+            int erInt = Integer.parseInt(er);
+            int ecInt = letterToNum(ec);
+
+            if (scInt == 0 || ecInt == 0) {
+                System.out.println("Error: invalid move");
+                menu();
+                return;
+            }
+
+            ChessPosition start = new ChessPosition(srInt, scInt);
+            ChessPosition end = new ChessPosition(erInt, ecInt);
             ChessPiece.PieceType promotion = null;
             if (promo != null) {
                 switch (promo) {
@@ -405,7 +420,14 @@ public class ClientMain implements NotificationHandler{
     public static void handleHighlightMoves(String r, String c) throws Exception {
         try {
             int row = Integer.parseInt(r);
-            int col = Integer.parseInt(c);
+            int col = letterToNum(c);
+
+            if (col == 0) {
+                System.out.println("Error: invalid column");
+                menu();
+                return;
+            }
+
             ChessPosition pos = new ChessPosition(row, col);
             ChessPiece piece = chessBoard.getPiece(pos);
 
@@ -452,6 +474,30 @@ public class ClientMain implements NotificationHandler{
 
     }
 
+    public static int letterToNum(String letter){
+        letter = letter.toLowerCase();
+        return switch (letter) {
+            case "a" -> 1;
+            case "b" -> 2;
+            case "c" -> 3;
+            case "d" -> 4;
+            case "e" -> 5;
+            case "f" -> 6;
+            case "g" -> 7;
+            case "h" -> 8;
+            default -> 0;
+        };
+    }
+    public static void printBottomLabels(String perspective) {
+        if (perspective.equalsIgnoreCase("black")) {
+            System.out.println("  h   g   f   e   d   c   b   a");
+        } else {
+            //white and the observer...
+            System.out.println("  a   b   c   d   e   f   g   h");
+        }
+    }
+
+
     public static void drawChessBoard(String perspective) {
         if (chessBoard == null) {
             chessBoard = new ChessBoard();
@@ -497,7 +543,7 @@ public class ClientMain implements NotificationHandler{
                 System.out.println(EscapeSequences.RESET_BG_COLOR);
             }
         }
-        System.out.println("  h   g   f   e   d   c   b   a");
+        printBottomLabels(perspective);
 
 
     }
@@ -546,7 +592,7 @@ public class ClientMain implements NotificationHandler{
             }
         }
 
-        System.out.println("  h   g   f   e   d   c   b   a");
+        printBottomLabels(perspective);
     }
 
     @Override
@@ -559,7 +605,9 @@ public class ClientMain implements NotificationHandler{
             drawChessBoard(pers);
 
         } else {
-            System.out.println(message.getMessage());
+            if (message.getMessage() != null) {
+                System.out.println(message.getMessage());
+            }
         }
     }
 }
