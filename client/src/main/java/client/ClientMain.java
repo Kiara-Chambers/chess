@@ -177,7 +177,7 @@ public class ClientMain implements NotificationHandler{
     }
     @Override
     public void notify(ServerMessage message) {
-        System.out.println("WS IN: " + message.getServerMessageType());
+        //System.out.println("WS IN: " + message.getServerMessageType());
 
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             currentGame = message.getGame();
@@ -194,7 +194,7 @@ public class ClientMain implements NotificationHandler{
         }
 
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
-            System.out.println("SERVER ERROR: " + message.getMessage());
+            System.out.println("ERROR: " + message.getErrorMessage());
             return;
         }
 

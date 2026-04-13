@@ -205,7 +205,6 @@ public class ClientHandlers {
             ws.makeMove(authToken, currentGameID, move);
            // System.out.println("You've made a move!");
 
-            menu();
         } catch (Exception e) {
             System.out.println("Error: invalid move"+e.getMessage());
             menu();
