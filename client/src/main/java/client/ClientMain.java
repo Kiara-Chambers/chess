@@ -129,13 +129,14 @@ public class ClientMain implements NotificationHandler{
                     handleLeaveGame();
                     break;
                 case "resign":
-                   // handleResign();
+                    handleResign();
                     break;
                 case "help":
                     help();
                     break;
                 default:
                     System.out.println("Invalid command");
+                    menu();
             }
         }
     }
@@ -375,6 +376,23 @@ public class ClientMain implements NotificationHandler{
             menu();
         } catch (Exception e) {
             System.out.println("Error leaving game");
+            menu();
+        }
+    }
+
+    public static void handleResign() throws Exception {
+        try {
+            ws.resign(authToken, currentGameID);
+
+            inGame = false;
+            currentGameID = 0;
+
+            chessBoard = new ChessBoard();
+            chessBoard.resetBoard();
+
+            menu();
+        } catch (Exception e) {
+            System.out.println("Error resigning from game");
             menu();
         }
     }
