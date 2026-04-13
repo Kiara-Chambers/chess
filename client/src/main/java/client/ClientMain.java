@@ -131,6 +131,12 @@ public class ClientMain implements NotificationHandler{
                 case "resign":
                     handleResign();
                     break;
+                case "highlight":
+                    handleHighlightMoves(parts[1], parts[2]);
+                    break;
+                case "redraw":
+                    drawChessBoard(pers);
+                    break;
                 case "help":
                     help();
                     break;
@@ -396,6 +402,28 @@ public class ClientMain implements NotificationHandler{
             menu();
         }
     }
+    public static void handleHighlightMoves(String r, String c) throws Exception {
+        try {
+            int row = Integer.parseInt(r);
+            int col = Integer.parseInt(c);
+            ChessPosition pos = new ChessPosition(row, col);
+            ChessPiece piece = chessBoard.getPiece(pos);
+
+            if (piece == null) {
+                System.out.println("There's no piece there...");
+                menu();
+                return;
+            }
+            var moves = currentGame.validMoves(pos);
+            drawChessBoardWithHighlights(pers, pos, moves);
+            menu();
+
+        } catch (Exception e) {
+            System.out.println("Error showing valid  moves");
+            menu();
+        }
+    }
+
 
     public static String getPieceSymbol(ChessPiece piece) {
         if (piece == null) {
@@ -424,7 +452,6 @@ public class ClientMain implements NotificationHandler{
 
     }
 
-    //pos is right for k/q just need to make black persp show black pieces, not white
     public static void drawChessBoard(String perspective) {
         if (chessBoard == null) {
             chessBoard = new ChessBoard();
@@ -473,6 +500,53 @@ public class ClientMain implements NotificationHandler{
         System.out.println("  h   g   f   e   d   c   b   a");
 
 
+    }
+    public static void drawChessBoardWithHighlights(String perspective, ChessPosition selected, java.util.Collection<ChessMove> moves) {
+        java.util.Set<ChessPosition> highlights = new java.util.HashSet<>();
+        for (ChessMove m : moves) {
+            highlights.add(m.getEndPosition());
+        }
+
+        String[][] board = new String[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPosition pos = new ChessPosition(i + 1, j + 1);
+
+                //the piece we wanna see the moves for
+                if (pos.equals(selected)) {
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_YELLOW;
+                } else if (highlights.contains(pos)) {
+                    //and this is the color of possible moves
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_GREEN;
+                } else if ((i + j) % 2 == 0) {
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLACK;
+                } else {
+                    board[i][j] = EscapeSequences.SET_BG_COLOR_BLUE;
+                }
+            }
+        }
+
+        if (perspective.equalsIgnoreCase("white")) {
+            for (int r = 7; r >= 0; r--) {
+                System.out.print((r + 1) + " ");
+                for (int c = 0; c < 8; c++) {
+                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(r + 1, c + 1));
+                    System.out.print(board[r][c] + getPieceSymbol(piece));
+                }
+                System.out.println(EscapeSequences.RESET_BG_COLOR);
+            }
+        } else {
+            for (int r = 7; r >= 0; r--) {
+                System.out.print((8 - r) + " ");
+                for (int c = 0; c < 8; c++) {
+                    ChessPiece piece = chessBoard.getPiece(new ChessPosition(8 - r, 8 - c));
+                    System.out.print(board[r][c] + getPieceSymbol(piece));
+                }
+                System.out.println(EscapeSequences.RESET_BG_COLOR);
+            }
+        }
+
+        System.out.println("  h   g   f   e   d   c   b   a");
     }
 
     @Override
