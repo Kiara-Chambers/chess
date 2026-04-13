@@ -1,9 +1,13 @@
 package client;
 
 import chess.*;
+import model.AuthData;
+import ui.EscapeSequences;
 import websocket.messages.ServerMessage;
+
+import java.util.List;
 import java.util.Scanner;
-import static client.ClientState.*;
+
 import static client.ChessUI.*;
 import static java.lang.System.exit;
 import static client.ClientHandlers.*;
@@ -13,6 +17,16 @@ public class ClientMain implements NotificationHandler{
     public static boolean loggedIn = false;
     static Scanner scanner = new Scanner(System.in);
 
+    static ChessBoard chessBoard = new ChessBoard();
+    static ChessGame currentGame;
+    static String pers = "WHITE";
+    static int currentGameID;
+    static boolean inGame = false;
+
+    static String authToken;
+    static List<?> lastGames;
+    static WebSocketFacade ws;
+
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
@@ -20,106 +34,116 @@ public class ClientMain implements NotificationHandler{
             menu();
         }
     }
+
+    static void loggedOut(String[] parts, String userInput) throws Exception {
+        switch (userInput) {
+            case "help":
+                help();
+                break;
+            case "quit":
+                quit();
+                break;
+            case "login":
+                if (parts.length == 3) {
+                    handleLogin(parts[1], parts[2]);
+                } else {
+                    System.out.println("Try again and use like this: login <username> <password>");
+                }
+                break;
+            case "register":
+                if (parts.length == 4) {
+                    handleRegister(parts[1], parts[2], parts[3]);
+                } else {
+                    System.out.println("Try again and use like this: register <username> <password> <email>");
+                }
+                break;
+            default:
+                System.out.println("Please enter a valid option");
+                break;
+        }
+    }
+    static void loggedIn(String[] parts, String userInput) throws Exception {
+        switch (userInput) {
+            case "create":
+                if (parts.length == 2) {
+                    handleCreateGame(parts[1]);
+                } else {
+                    System.out.println("Try again and use like this: create <NAME>");
+                }
+                break;
+            case "list":
+                handleListGames();
+                break;
+            case "join":
+                if (parts.length == 3) {
+                    handleJoinGame(parts[1], parts[2]);
+                } else {
+                    System.out.println("Try again and use like this: join <NUMBER> <WHITE|BLACK>");
+                }
+                break;
+            case "observe":
+                if (parts.length == 2) {
+                    handleObserveGame(parts[1]);
+                } else {
+                    System.out.println("Try again and use like this: observe <NUMBER>");
+                }
+                break;
+            case "logout":
+                handleLogout();
+                break;
+            case "quit":
+                quit();
+                break;
+            case "help":
+                help();
+                break;
+            default:
+                System.out.println("Please enter a valid option");
+                break;
+        }
+    }
+    static void inGame(String[] parts, String userInput) throws Exception{
+        switch (userInput) {
+            case "move":
+                if (parts.length == 5 || parts.length == 6) {
+                    String promo = (parts.length == 6) ? parts[5].toUpperCase() : null;
+                    handleMakeMove(parts[1], parts[2], parts[3], parts[4], promo);
+                } else {
+                    System.out.println("Usage: move <sr> <sc> <er> <ec> [QUEEN|ROOK|BISHOP|KNIGHT]");
+                }
+                break;
+            case "leave":
+                handleLeaveGame();
+                break;
+            case "resign":
+                handleResign();
+                break;
+            case "highlight":
+                if (parts.length >= 3) {
+                    handleHighlightMoves(parts[1], parts[2]);
+                } else {
+                    System.out.println("Try again and use like this: highlight <ROW> <COL>");
+                }
+                break;
+            case "redraw":
+                drawChessBoard(chessBoard,pers);
+                break;
+            case "help":
+                help();
+                break;
+            default:
+                System.out.println("Invalid command");
+        }
+    }
     public static void menu() throws Exception {
         String[] parts = scanner.nextLine().split(" ");
         String userInput = parts[0].toLowerCase();
         if (!loggedIn) {
-            switch (userInput) {
-                case "help":
-                    help();
-                    break;
-                case "quit":
-                    quit();
-                    break;
-                case "login":
-                    if (parts.length == 3) {
-                        handleLogin(parts[1], parts[2]);
-                    } else {
-                        System.out.println("Try again and use like this: login <username> <password>");
-                    }
-                    break;
-                case "register":
-                    if (parts.length == 4) {
-                        handleRegister(parts[1], parts[2], parts[3]);
-                    } else {
-                        System.out.println("Try again and use like this: register <username> <password> <email>");
-                    }
-                    break;
-                default:
-                    System.out.println("Please enter a valid option");
-                    break;
-            }
+            loggedOut(parts, userInput);
         } else if(!inGame) {
-            switch (userInput) {
-                case "create":
-                    if (parts.length == 2) {
-                        handleCreateGame(parts[1]);
-                    } else {
-                        System.out.println("Try again and use like this: create <NAME>");
-                    }
-                    break;
-                case "list":
-                    handleListGames();
-                    break;
-                case "join":
-                    if (parts.length == 3) {
-                        handleJoinGame(parts[1], parts[2]);
-                    } else {
-                        System.out.println("Try again and use like this: join <NUMBER> <WHITE|BLACK>");
-                    }
-                    break;
-                case "observe":
-                    if (parts.length == 2) {
-                        handleObserveGame(parts[1]);
-                    } else {
-                        System.out.println("Try again and use like this: observe <NUMBER>");
-                    }
-                    break;
-                case "logout":
-                    handleLogout();
-                    break;
-                case "quit":
-                    quit();
-                    break;
-                case "help":
-                    help();
-                    break;
-                default:
-                    System.out.println("Please enter a valid option");
-                    break;
-            }
+            loggedIn(parts, userInput);
         } else {
-            switch (userInput) {
-                case "move":
-                    if (parts.length == 5 || parts.length == 6) {
-                        String promo = (parts.length == 6) ? parts[5].toUpperCase() : null;
-                        handleMakeMove(parts[1], parts[2], parts[3], parts[4], promo);
-                    } else {
-                        System.out.println("Usage: move <sr> <sc> <er> <ec> [QUEEN|ROOK|BISHOP|KNIGHT]");
-                    }
-                    break;
-                case "leave":
-                    handleLeaveGame();
-                    break;
-                case "resign":
-                    handleResign();
-                    break;
-                case "highlight":
-                    if (parts.length >= 3) {
-                        handleHighlightMoves(parts[1], parts[2]);
-                    } else {
-                        System.out.println("Try again and use like this: highlight <ROW> <COL>");
-                    }
-                    break;
-                case "redraw":
-                    drawChessBoard(chessBoard,pers);
-                    break;
-                case "help":
-                    help();
-                    break;
-                default:
-                    System.out.println("Invalid command");
-            }
+            inGame(parts, userInput);
         }
     }
     public static void help() {

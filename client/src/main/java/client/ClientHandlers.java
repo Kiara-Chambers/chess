@@ -7,8 +7,6 @@ import chess.ChessPosition;
 import model.AuthData;
 import static client.ClientMain.*;
 import static client.ChessUI.*;
-import static client.ClientState.*;
-
 
 public class ClientHandlers {
     public static void handleRegister(String username, String password, String email) throws Exception {
