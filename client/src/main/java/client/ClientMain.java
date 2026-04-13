@@ -1,13 +1,9 @@
 package client;
 
 import chess.*;
-import model.AuthData;
-import ui.EscapeSequences;
 import websocket.messages.ServerMessage;
-
-import java.util.List;
 import java.util.Scanner;
-
+import static client.ClientState.*;
 import static client.ChessUI.*;
 import static java.lang.System.exit;
 import static client.ClientHandlers.*;
@@ -16,16 +12,6 @@ public class ClientMain implements NotificationHandler{
     public static ServerFacade facade;
     public static boolean loggedIn = false;
     static Scanner scanner = new Scanner(System.in);
-
-    static ChessBoard chessBoard = new ChessBoard();
-    static ChessGame currentGame;
-    static String pers = "WHITE";
-    static int currentGameID;
-    static boolean inGame = false;
-
-    static String authToken;
-    static List<?> lastGames;
-    static WebSocketFacade ws;
 
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
