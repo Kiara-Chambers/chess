@@ -374,6 +374,7 @@ public class ClientMain implements NotificationHandler{
             ChessMove move = new ChessMove(start, end,promotion);
 
             ws.makeMove(authToken, currentGameID, move);
+            System.out.println("You've made a move!");
 
             menu();
         } catch (Exception e) {
@@ -600,17 +601,22 @@ public class ClientMain implements NotificationHandler{
 
     @Override
     public void notify(ServerMessage message) {
+        System.out.println("WS IN: " + message.getServerMessageType());
+
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
 
             currentGame = message.getGame();
+
+            if (currentGame == null) {
+                System.out.println("ERROR: game is null in LOAD_GAME");
+                return;
+            }
+
             chessBoard = currentGame.getBoard();
 
             drawChessBoard(pers);
-
         } else {
-            if (message.getMessage() != null) {
-                System.out.println(message.getMessage());
-            }
+            System.out.println(message.getMessage());
         }
     }
 }

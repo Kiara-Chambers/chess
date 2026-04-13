@@ -40,6 +40,173 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket connected");
         ctx.enableAutomaticPings();
     }
+    public void connect(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException {
+        System.out.println("Connect");
+        var authData = authDAO.getAuth(command.getAuthToken());
+        if (authData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Unauthorized")));
+            return;
+        }
+        var gameData = gameDAO.getGame(command.getGameID());
+        if (gameData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Game's Invalid")));
+            return;
+        }
+        connections.add(command.getGameID(), ctx.session);
+
+        connections.broadcast(command.getGameID(), ctx.session,
+                new Notification("NOTIFICATION", authData.username() + " joined!")
+        );
+        ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
+                "game",gameData)));
+    }
+    void makeMove(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException {
+        System.out.println("Move");
+        var authData = authDAO.getAuth(command.getAuthToken());
+        if (authData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Unauthorized")));
+            return;
+        }
+        var gameData = gameDAO.getGame(command.getGameID());
+        if (gameData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Game's Invalid")));
+            return;
+        }
+        int gameID = command.getGameID();
+        String gameKey = String.valueOf(gameID);
+        if (resignedPlayers.contains(gameKey)) {
+            ctx.send(gson.toJson(Map.of(
+                    "serverMessageType","ERROR",
+                    "errorMessage","Error: Game is already over"
+            )));
+            return;
+        }
+
+        String currentPlayer;
+        if (gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
+            currentPlayer = gameData.whiteUsername();
+        } else {
+            currentPlayer = gameData.blackUsername();
+        }
+        if (!authData.username().equals(currentPlayer)) {
+            ctx.send(gson.toJson(Map.of(
+                    "serverMessageType","ERROR",
+                    "errorMessage","Not your turn"
+            )));
+            return;
+        }
+
+        ChessMove move = new ChessMove(
+                command.getMove().getStartPosition(),
+                command.getMove().getEndPosition(),
+                command.getMove().getPromotionPiece()
+        );
+
+        gameData.game().makeMove(move);
+        gameDAO.updateGame(gameData);
+
+        var loadGameMsg = gson.toJson(Map.of(
+                "serverMessageType","LOAD_GAME",
+                "game",gameData
+        ));
+
+        for (var session : connections.getGameSessions(gameID)) {
+            if (session.isOpen()) {
+                session.getRemote().sendString(loadGameMsg);
+            }
+        }
+
+        connections.broadcast(gameID, ctx.session,
+                new Notification("NOTIFICATION", authData.username() + " moved!")
+        );
+
+        if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
+                gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+
+            resignedPlayers.add(gameKey);
+
+            connections.broadcast(gameID, null,
+                    new Notification("NOTIFICATION", "Game over!")
+            );
+        }
+    }
+    void leave(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException{
+        System.out.println("Leave");
+
+        var authData = authDAO.getAuth(command.getAuthToken());
+        if (authData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Unauthorized")));
+            return;
+        }
+        var gameData = gameDAO.getGame(command.getGameID());
+        if (gameData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Game's Invalid")));
+            return;
+        }
+        //remove them from teh game
+        if (authData.username().equals(gameData.whiteUsername())) {
+            gameData=new GameData(gameData.gameID(),null,gameData.blackUsername(),gameData.gameName(),gameData.game());
+        } else if (authData.username().equals(gameData.blackUsername())) {
+            gameData=new GameData(gameData.gameID(),gameData.whiteUsername(),null,gameData.gameName(),gameData.game());
+        }
+        gameDAO.updateGame(gameData);
+        //connections.remove(ctx.session);
+
+        connections.remove(command.getGameID(), ctx.session);
+
+        connections.broadcast(command.getGameID(), ctx.session,
+                new Notification("NOTIFICATION", authData.username() + " left the game!")
+        );
+    }
+    void resign(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException{
+        System.out.println("Resign");
+
+        var authData = authDAO.getAuth(command.getAuthToken());
+        if (authData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Unauthorized")));
+            return;
+        }
+        var gameData = gameDAO.getGame(command.getGameID());
+        if (gameData == null) {
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Game's Invalid")));
+            return;
+        }
+        String gameKey = String.valueOf(gameData.gameID());
+        if (resignedPlayers.contains(gameKey)) {
+            ctx.send(gson.toJson(Map.of(
+                    "serverMessageType","ERROR",
+                    "errorMessage","Error: Game is already over"
+            )));
+            return;
+        }
+        //resign -but only if you're playing...
+        if(!authData.username().equals(gameData.whiteUsername())
+                &&!authData.username().equals(gameData.blackUsername())){
+            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
+                    "errorMessage","Error: Observers can't resign")));
+            return;
+        }
+
+
+        resignedPlayers.add(gameKey);
+        gameDAO.updateGame(gameData);
+        connections.broadcast(command.getGameID(), ctx.session,
+                new Notification("NOTIFICATION", authData.username() + " resigned!")
+        );
+        ctx.send(gson.toJson(new Notification(
+                "NOTIFICATION",
+                authData.username() + " resigned!"
+        )));
+
+    }
 
     @Override
     public void handleMessage(WsMessageContext ctx) throws DataAccessException {
@@ -47,172 +214,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> {
-                    System.out.println("Connect");
-                    var authData = authDAO.getAuth(command.getAuthToken());
-                    if (authData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Unauthorized")));
-                        return;
-                    }
-                    var gameData = gameDAO.getGame(command.getGameID());
-                    if (gameData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Game's Invalid")));
-                        return;
-                    }
-                    connections.add(command.getGameID(), ctx.session);
-
-                    connections.broadcast(command.getGameID(), ctx.session,
-                            new Notification("NOTIFICATION", authData.username() + " joined!")
-                    );
-                    ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
-                            "game",gameData)));
+                    connect(command,ctx);
                 }
                 case MAKE_MOVE -> {
-                    System.out.println("Move");
-                    var authData = authDAO.getAuth(command.getAuthToken());
-                    if (authData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Unauthorized")));
-                        return;
-                    }
-                    var gameData = gameDAO.getGame(command.getGameID());
-                    if (gameData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Game's Invalid")));
-                        return;
-                    }
-                    int gameID = command.getGameID();
-                    String gameKey = String.valueOf(gameID);
-                    if (resignedPlayers.contains(gameKey)) {
-                        ctx.send(gson.toJson(Map.of(
-                                "serverMessageType","ERROR",
-                                "errorMessage","Error: Game is already over"
-                        )));
-                        return;
-                    }
-
-                    String currentPlayer;
-                    if (gameData.game().getTeamTurn() == ChessGame.TeamColor.WHITE) {
-                        currentPlayer = gameData.whiteUsername();
-                    } else {
-                        currentPlayer = gameData.blackUsername();
-                    }
-                    if (!authData.username().equals(currentPlayer)) {
-                        ctx.send(gson.toJson(Map.of(
-                                "serverMessageType","ERROR",
-                                "errorMessage","Not your turn"
-                        )));
-                        return;
-                    }
-
-                    ChessMove move = new ChessMove(
-                            command.getMove().getStartPosition(),
-                            command.getMove().getEndPosition(),
-                            command.getMove().getPromotionPiece()
-                    );
-
-                    gameData.game().makeMove(move);
-                    gameDAO.updateGame(gameData);
-
-                    var loadGameMsg = gson.toJson(Map.of(
-                            "serverMessageType","LOAD_GAME",
-                            "game",gameData
-                    ));
-
-                    for (var session : connections.getGameSessions(gameID)) {
-                        if (session.isOpen()) {
-                            session.getRemote().sendString(loadGameMsg);
-                        }
-                    }
-
-                    connections.broadcast(gameID, ctx.session,
-                            new Notification("NOTIFICATION", authData.username() + " moved!")
-                    );
-
-                    if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
-                            gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-
-                        resignedPlayers.add(gameKey);
-
-                        connections.broadcast(gameID, null,
-                                new Notification("NOTIFICATION", "Game over!")
-                        );
-                    }
+                    makeMove(command,ctx);
                 }
                 case LEAVE -> {
-                    System.out.println("Leave");
-
-                    var authData = authDAO.getAuth(command.getAuthToken());
-                    if (authData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Unauthorized")));
-                        return;
-                    }
-                    var gameData = gameDAO.getGame(command.getGameID());
-                    if (gameData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Game's Invalid")));
-                        return;
-                    }
-                    //remove them from teh game
-                    if (authData.username().equals(gameData.whiteUsername())) {
-                        gameData=new GameData(gameData.gameID(),null,gameData.blackUsername(),gameData.gameName(),gameData.game());
-                    } else if (authData.username().equals(gameData.blackUsername())) {
-                        gameData=new GameData(gameData.gameID(),gameData.whiteUsername(),null,gameData.gameName(),gameData.game());
-                    }
-                    gameDAO.updateGame(gameData);
-                    //connections.remove(ctx.session);
-
-                    connections.remove(command.getGameID(), ctx.session);
-
-                    connections.broadcast(command.getGameID(), ctx.session,
-                            new Notification("NOTIFICATION", authData.username() + " left the game!")
-                    );
+                    leave(command,ctx);
                 }
                 case RESIGN -> {
-                    System.out.println("Resign");
-
-                    var authData = authDAO.getAuth(command.getAuthToken());
-                    if (authData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Unauthorized")));
-                        return;
-                    }
-                    var gameData = gameDAO.getGame(command.getGameID());
-                    if (gameData == null) {
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Game's Invalid")));
-                        return;
-                    }
-                    String gameKey = String.valueOf(gameData.gameID());
-                    if (resignedPlayers.contains(gameKey)) {
-                        ctx.send(gson.toJson(Map.of(
-                                "serverMessageType","ERROR",
-                                "errorMessage","Error: Game is already over"
-                        )));
-                        return;
-                    }
-                    //resign -but only if you're playing...
-                    if(!authData.username().equals(gameData.whiteUsername())
-                            &&!authData.username().equals(gameData.blackUsername())){
-                        ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                                "errorMessage","Error: Observers can't resign")));
-                        return;
-                    }
-
-
-                    resignedPlayers.add(gameKey);
-                    gameDAO.updateGame(gameData);
-                    connections.broadcast(command.getGameID(), ctx.session,
-                            new Notification("NOTIFICATION", authData.username() + " resigned!")
-                    );
-                    ctx.send(gson.toJson(new Notification(
-                            "NOTIFICATION",
-                            authData.username() + " resigned!"
-                    )));
-
-
+                    resign(command,ctx);
                 }
             }
         }catch (DataAccessException e){
