@@ -42,40 +42,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
     public void connect(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException {
         System.out.println("Connect");
-        var authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Unauthorized")));
-            return;
-        }
-        var gameData = gameDAO.getGame(command.getGameID());
-        if (gameData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Game's Invalid")));
-            return;
-        }
+        String username = requireAuth(command, ctx);
+        if (username == null) return;
+
+        GameData gameData = requireGame(command, ctx);
+        if (gameData == null) return;
+
         connections.add(command.getGameID(), ctx.session);
 
         connections.broadcast(command.getGameID(), ctx.session,
-                new Notification("NOTIFICATION", authData.username() + " joined!")
+                new Notification("NOTIFICATION", username + " joined!")
         );
         ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
                 "game",gameData)));
     }
     void makeMove(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException {
         System.out.println("Move");
-        var authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Unauthorized")));
-            return;
-        }
-        var gameData = gameDAO.getGame(command.getGameID());
-        if (gameData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Game's Invalid")));
-            return;
-        }
+        String username = requireAuth(command, ctx);
+        if (username == null) return;
+
+        GameData gameData = requireGame(command, ctx);
+        if (gameData == null) return;
         int gameID = command.getGameID();
         String gameKey = String.valueOf(gameID);
         if (resignedPlayers.contains(gameKey)) {
@@ -92,7 +79,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             currentPlayer = gameData.blackUsername();
         }
-        if (!authData.username().equals(currentPlayer)) {
+        if (!username.equals(currentPlayer)) {
             ctx.send(gson.toJson(Map.of(
                     "serverMessageType","ERROR",
                     "errorMessage","Not your turn"
@@ -121,7 +108,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         connections.broadcast(gameID, ctx.session,
-                new Notification("NOTIFICATION", authData.username() + " moved!")
+                new Notification("NOTIFICATION", username + " moved!")
         );
 
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
@@ -137,22 +124,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     void leave(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException{
         System.out.println("Leave");
 
-        var authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Unauthorized")));
-            return;
-        }
-        var gameData = gameDAO.getGame(command.getGameID());
-        if (gameData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Game's Invalid")));
-            return;
-        }
+        String username = requireAuth(command, ctx);
+        if (username == null) return;
+
+        GameData gameData = requireGame(command, ctx);
+        if (gameData == null) return;
         //remove them from teh game
-        if (authData.username().equals(gameData.whiteUsername())) {
+        if (username.equals(gameData.whiteUsername())) {
             gameData=new GameData(gameData.gameID(),null,gameData.blackUsername(),gameData.gameName(),gameData.game());
-        } else if (authData.username().equals(gameData.blackUsername())) {
+        } else if (username.equals(gameData.blackUsername())) {
             gameData=new GameData(gameData.gameID(),gameData.whiteUsername(),null,gameData.gameName(),gameData.game());
         }
         gameDAO.updateGame(gameData);
@@ -161,24 +141,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.remove(command.getGameID(), ctx.session);
 
         connections.broadcast(command.getGameID(), ctx.session,
-                new Notification("NOTIFICATION", authData.username() + " left the game!")
+                new Notification("NOTIFICATION", username + " left the game!")
         );
     }
     void resign(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException{
         System.out.println("Resign");
 
-        var authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Unauthorized")));
-            return;
-        }
-        var gameData = gameDAO.getGame(command.getGameID());
-        if (gameData == null) {
-            ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
-                    "errorMessage","Error: Game's Invalid")));
-            return;
-        }
+        String username = requireAuth(command, ctx);
+        if (username == null) return;
+
+        GameData gameData = requireGame(command, ctx);
+        if (gameData == null) return;
         String gameKey = String.valueOf(gameData.gameID());
         if (resignedPlayers.contains(gameKey)) {
             ctx.send(gson.toJson(Map.of(
@@ -188,8 +161,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
         //resign -but only if you're playing...
-        if(!authData.username().equals(gameData.whiteUsername())
-                &&!authData.username().equals(gameData.blackUsername())){
+        if(!username.equals(gameData.whiteUsername())
+                &&!username.equals(gameData.blackUsername())){
             ctx.send(gson.toJson(Map.of("serverMessageType","ERROR",
                     "errorMessage","Error: Observers can't resign")));
             return;
@@ -199,11 +172,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         resignedPlayers.add(gameKey);
         gameDAO.updateGame(gameData);
         connections.broadcast(command.getGameID(), ctx.session,
-                new Notification("NOTIFICATION", authData.username() + " resigned!")
+                new Notification("NOTIFICATION", username + " resigned!")
         );
         ctx.send(gson.toJson(new Notification(
                 "NOTIFICATION",
-                authData.username() + " resigned!"
+                username + " resigned!"
         )));
 
     }
@@ -244,4 +217,33 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
+
+    private String sendError(WsMessageContext ctx, String msg) throws IOException {
+        ctx.send(gson.toJson(Map.of(
+                "serverMessageType", "ERROR",
+                "errorMessage", msg
+        )));
+        return null;
+    }
+
+    private String requireAuth(UserGameCommand command, WsMessageContext ctx)
+            throws DataAccessException, IOException {
+
+        var authData = authDAO.getAuth(command.getAuthToken());
+        if (authData == null) {
+            return sendError(ctx, "Error: Unauthorized");
+        }
+        return authData.username();
+    }
+
+    private GameData requireGame(UserGameCommand command, WsMessageContext ctx)
+            throws DataAccessException, IOException {
+
+        var gameData = gameDAO.getGame(command.getGameID());
+        if (gameData == null) {
+            sendError(ctx, "Error: Game's Invalid");
+            return null;
+        }
+        return gameData;
+    }
 }
