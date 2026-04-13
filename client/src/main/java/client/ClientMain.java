@@ -6,7 +6,6 @@ import ui.EscapeSequences;
 import websocket.messages.ServerMessage;
 
 import java.util.List;
-
 import java.util.Scanner;
 
 import static client.ChessUI.*;
@@ -31,7 +30,9 @@ public class ClientMain implements NotificationHandler{
     public static void main(String[] args) throws Exception {
         facade = new ServerFacade(8080);
         System.out.println("♕ Welcome to 240 chess. Type Help to get started.");
-        menu();
+        while (true) {
+            menu();
+        }
     }
 
     public static void menu() throws Exception {
@@ -39,7 +40,6 @@ public class ClientMain implements NotificationHandler{
         String[] parts = scanner.nextLine().split(" ");
         String userInput = parts[0].toLowerCase();
 
-        userInput = userInput.toLowerCase();
         if (!loggedIn) {
             switch (userInput) {
                 case "help":
@@ -49,50 +49,48 @@ public class ClientMain implements NotificationHandler{
                     quit();
                     break;
                 case "login":
-                    if (parts.length != 3) {
+                    if (parts.length == 3) {
+                        handleLogin(parts[1], parts[2]);
+                    } else {
                         System.out.println("Try again and use like this: login <username> <password>");
-                        menu();
                     }
-                    handleLogin(parts[1], parts[2]);
                     break;
                 case "register":
-                    if (parts.length != 4) {
+                    if (parts.length == 4) {
+                        handleRegister(parts[1], parts[2], parts[3]);
+                    } else {
                         System.out.println("Try again and use like this: register <username> <password> <email>");
-                        menu();
                     }
-                    handleRegister(parts[1], parts[2], parts[3]);
                     break;
                 default:
                     System.out.println("Please enter a valid option");
-                    menu();
                     break;
-
             }
         } else if(!inGame) {
             switch (userInput) {
                 case "create":
-                    if (parts.length != 2) {
+                    if (parts.length == 2) {
+                        handleCreateGame(parts[1]);
+                    } else {
                         System.out.println("Try again and use like this: create <NAME>");
-                        menu();
                     }
-                    handleCreateGame(parts[1]);
                     break;
                 case "list":
                     handleListGames();
                     break;
                 case "join":
-                    if (parts.length != 3) {
+                    if (parts.length == 3) {
+                        handleJoinGame(parts[1], parts[2]);
+                    } else {
                         System.out.println("Try again and use like this: join <NUMBER> <WHITE|BLACK>");
-                        menu();
                     }
-                    handleJoinGame(parts[1], parts[2]);
                     break;
                 case "observe":
-                    if (parts.length != 2) {
+                    if (parts.length == 2) {
+                        handleObserveGame(parts[1]);
+                    } else {
                         System.out.println("Try again and use like this: observe <NUMBER>");
-                        menu();
                     }
-                    handleObserveGame(parts[1]);
                     break;
                 case "logout":
                     handleLogout();
@@ -105,21 +103,17 @@ public class ClientMain implements NotificationHandler{
                     break;
                 default:
                     System.out.println("Please enter a valid option");
-                    menu();
                     break;
             }
-        }else{
+        } else {
             switch (userInput) {
                 case "move":
-                    if (parts.length != 5 && parts.length != 6) {
+                    if (parts.length == 5 || parts.length == 6) {
+                        String promo = (parts.length == 6) ? parts[5].toUpperCase() : null;
+                        handleMakeMove(parts[1], parts[2], parts[3], parts[4], promo);
+                    } else {
                         System.out.println("Usage: move <sr> <sc> <er> <ec> [QUEEN|ROOK|BISHOP|KNIGHT]");
-                        menu();
-                        return;
                     }
-
-                    String promo = (parts.length == 6) ? parts[5].toUpperCase() : null;
-
-                    handleMakeMove(parts[1], parts[2], parts[3], parts[4], promo);
                     break;
                 case "leave":
                     handleLeaveGame();
@@ -128,28 +122,25 @@ public class ClientMain implements NotificationHandler{
                     handleResign();
                     break;
                 case "highlight":
-                    if (parts.length < 3) {
+                    if (parts.length >= 3) {
+                        handleHighlightMoves(parts[1], parts[2]);
+                    } else {
                         System.out.println("Try again and use like this: highlight <ROW> <COL>");
-                        menu();
-                        return;
                     }
-                    handleHighlightMoves(parts[1], parts[2]);
                     break;
                 case "redraw":
                     drawChessBoard(chessBoard,pers);
-                    menu();
                     break;
                 case "help":
                     help();
                     break;
                 default:
                     System.out.println("Invalid command");
-                    menu();
             }
         }
     }
 
-    public static void help() throws Exception {
+    public static void help() {
         if (!loggedIn) {
             System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
             System.out.println("login <USERNAME> <PASSWORD> - to play chess");
@@ -173,7 +164,6 @@ public class ClientMain implements NotificationHandler{
                 System.out.println("help - list possible actions");
             }
         }
-        menu();
     }
 
     public static void quit() {
@@ -181,23 +171,17 @@ public class ClientMain implements NotificationHandler{
         exit(0);
     }
 
-
-
     @Override
     public void notify(ServerMessage message) {
         System.out.println("WS IN: " + message.getServerMessageType());
 
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-
             currentGame = message.getGame();
-
             if (currentGame == null) {
                 System.out.println("ERROR: game is null in LOAD_GAME");
                 return;
             }
-
             chessBoard = currentGame.getBoard();
-
             drawChessBoard(chessBoard,pers);
         } else {
             System.out.println(message.getMessage());

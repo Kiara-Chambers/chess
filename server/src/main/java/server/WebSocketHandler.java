@@ -247,7 +247,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         var authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {
-            return sendError(ctx, "Error: Unauthorized");
+            sendError(ctx, "Error: Unauthorized");
+            return null;
         }
         return authData.username();
     }

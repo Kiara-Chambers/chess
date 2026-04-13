@@ -22,7 +22,9 @@ public class ConnectionManager {
     //added gameid to pass the Multiple concurrent games test that was so annoying
     public void broadcast(int gameID, Session excludeSession, Notification notification) throws IOException {
         var sessions = connections.get(gameID);
-        if (sessions == null) return;
+        if (sessions == null) {
+            return;
+        }
 
         String msg = notification.toString();
 
