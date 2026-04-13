@@ -80,7 +80,7 @@ public class ClientMain implements NotificationHandler{
                     break;
 
             }
-        } else {
+        } else if(!inGame) {
             switch (userInput) {
                 case "create":
                     if (parts.length != 2) {
@@ -119,6 +119,23 @@ public class ClientMain implements NotificationHandler{
                     System.out.println("Please enter a valid option");
                     menu();
                     break;
+            }
+        }else{
+            switch (userInput) {
+                case "move":
+                    handleMakeMove(parts[1],parts[2],parts[3],parts[4],parts[5]);
+                    break;
+                case "leave":
+                    handleLeaveGame();
+                    break;
+                case "resign":
+                   // handleResign();
+                    break;
+                case "help":
+                    help();
+                    break;
+                default:
+                    System.out.println("Invalid command");
             }
         }
     }
@@ -341,6 +358,23 @@ public class ClientMain implements NotificationHandler{
             menu();
         } catch (Exception e) {
             System.out.println("Error: invalid move");
+            menu();
+        }
+    }
+    public static void handleLeaveGame() throws Exception {
+        try {
+            ws.leave(authToken, currentGameID);
+
+            inGame = false;
+            currentGameID = 0;
+            chessBoard = new ChessBoard();
+            chessBoard.resetBoard();
+
+            System.out.println("You left the game.");
+
+            menu();
+        } catch (Exception e) {
+            System.out.println("Error leaving game");
             menu();
         }
     }
