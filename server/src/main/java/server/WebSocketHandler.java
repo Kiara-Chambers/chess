@@ -250,11 +250,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     "errorMessage","Error: :(")));
         }  catch (InvalidMoveException e) {
         System.out.println("INVALID MOVE: " + e.getMessage());
+
+        String msg = (e.getMessage() != null) ? e.getMessage() : "Invalid move";
+
         ctx.send(gson.toJson(Map.of(
-                "serverMessageType","ERROR",
-                "errorMessage", e.getMessage()
+                "serverMessageType", "ERROR",
+                "errorMessage", msg
         )));
-        }catch (Exception e) {
+    }catch (Exception e) {
                 System.out.println("WS ERROR: " + e.getMessage());
 
                 ctx.send(gson.toJson(Map.of(
