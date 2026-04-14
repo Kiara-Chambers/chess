@@ -5,6 +5,9 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.AuthData;
+
+import java.util.Scanner;
+
 import static client.ClientMain.*;
 import static client.ChessUI.*;
 
@@ -235,15 +238,22 @@ public class ClientHandlers {
 
     public static void handleResign() throws Exception {
         try {
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("You sure you want to resign? (yes/no)");
+            String input = scanner.nextLine().trim().toLowerCase();
+
+            if (!input.equals("yes")) {
+                System.out.println("Resign cancelled. Continue playing.");
+                menu();
+                return;
+            }
+
             ws.resign(authToken, currentGameID);
-
-            inGame = false;
-            currentGameID = 0;
-
-            chessBoard = new ChessBoard();
-            chessBoard.resetBoard();
+            //System.out.println("You resigned.");
 
             menu();
+
         } catch (Exception e) {
             System.out.println("Error resigning from game");
             menu();

@@ -60,6 +60,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
                 "game",gameData.game())));
     }
+    private String numToLetter(int num) {
+        return switch (num) {
+            case 1 -> "a";
+            case 2 -> "b";
+            case 3 -> "c";
+            case 4 -> "d";
+            case 5 -> "e";
+            case 6 -> "f";
+            case 7 -> "g";
+            case 8 -> "h";
+            default -> "?";
+        };
+    }
+
     void makeMove(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException {
         System.out.println("Move");
         String username = requireAuth(command, ctx);
@@ -71,10 +85,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         if (gameData == null) {
             return;
         }
-//        System.out.println("USERNAME: " + username);
-//        System.out.println("TURN: " + gameData.game().getTeamTurn());
-//        System.out.println("WHITE: " + gameData.whiteUsername());
-//        System.out.println("BLACK: " + gameData.blackUsername());
+
         int gameID = command.getGameID();
         String gameKey = String.valueOf(gameID);
         if (resignedPlayers.contains(gameKey)) {
@@ -120,10 +131,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 session.getRemote().sendString(loadGameMsg);
             }
         }
+        String from =
+                numToLetter(move.getStartPosition().getColumn())
+                        + move.getStartPosition().getRow();
+
+        String to =
+                numToLetter(move.getEndPosition().getColumn())
+                        + move.getEndPosition().getRow();
 
         connections.broadcast(gameID, ctx.session,
-                new Notification("NOTIFICATION", username + " moved!")
+                new Notification("NOTIFICATION",
+                        username + " moved from " + from + " to " + to
+                )
         );
+
 
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
                 gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
@@ -194,11 +215,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         resignedPlayers.add(gameKey);
         gameDAO.updateGame(gameData);
         connections.broadcast(command.getGameID(), ctx.session,
-                new Notification("NOTIFICATION", username + " resigned!")
+                new Notification("NOTIFICATION", username + " The game's over!")
         );
         ctx.send(gson.toJson(new Notification(
                 "NOTIFICATION",
-                username + " resigned!"
+                username + " resigned! The game's over!"
         )));
 
     }
