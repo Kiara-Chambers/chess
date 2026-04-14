@@ -184,11 +184,22 @@ public class ClientHandlers {
     }
     public static void handleMakeMove(String sr, String sc, String er, String ec, String promo) throws Exception {
         try {
-            //I made it be like the fancy chess notation
-            int srInt = Integer.parseInt(sr);
-            int scInt = letterToNum(sc);
-            int erInt = Integer.parseInt(er);
-            int ecInt = letterToNum(ec);
+
+            int srInt;
+            int scInt;
+            int erInt;
+            int ecInt;
+            try {
+                srInt = Integer.parseInt(sr);
+                scInt = letterToNum(sc);
+                erInt = Integer.parseInt(er);
+                ecInt = letterToNum(ec);
+            }catch(Exception e){
+                System.out.println("Error: invalid move");
+                menu();
+                return;
+            }
+
 
             if (scInt == 0 || ecInt == 0) {
                 System.out.println("Error: invalid move");
@@ -211,10 +222,9 @@ public class ClientHandlers {
             ChessMove move = new ChessMove(start, end,promotion);
 
             ws.makeMove(authToken, currentGameID, move);
-           // System.out.println("You've made a move!");
 
         } catch (Exception e) {
-            System.out.println("Error: invalid move"+e.getMessage());
+            System.out.println("Error: invalid move. Try again.");
             menu();
         }
     }

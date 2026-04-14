@@ -53,10 +53,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         connections.add(command.getGameID(), ctx.session);
+        String role;
+
+        if (username.equals(gameData.whiteUsername())) {
+            role = "WHITE";
+        } else if (username.equals(gameData.blackUsername())) {
+            role = "BLACK";
+        } else {
+            role = "OBSERVER";
+        }
 
         connections.broadcast(command.getGameID(), ctx.session,
-                new Notification("NOTIFICATION", username + " joined!")
+                new Notification("NOTIFICATION", username + " joined as " + role)
         );
+
         ctx.send(gson.toJson(Map.of("serverMessageType","LOAD_GAME",
                 "game",gameData.game())));
     }
@@ -116,9 +126,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 command.getMove().getPromotionPiece()
         );
 
-        //System.out.println("BEFORE MOVE");
         gameData.game().makeMove(move);
-        //System.out.println("AFTER MOVE");
+
+        boolean whiteCheck = gameData.game().isInCheck(ChessGame.TeamColor.WHITE);
+        boolean blackCheck = gameData.game().isInCheck(ChessGame.TeamColor.BLACK);
+        boolean whiteMate = gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE);
+        boolean blackMate = gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK);
+
         gameDAO.updateGame(gameData);
 
         var loadGameMsg = gson.toJson(Map.of(
@@ -146,14 +160,30 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         );
 
 
-        if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
-                gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-
-            resignedPlayers.add(gameKey);
-
+        if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
             connections.broadcast(gameID, null,
-                    new Notification("NOTIFICATION", "Game over!")
-            );
+                    new Notification("NOTIFICATION",
+                            gameData.whiteUsername() + " is in checkmate. " +
+                                    gameData.blackUsername() + " wins"));
+        }else{
+            if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                connections.broadcast(gameID, null,
+                        new Notification("NOTIFICATION",
+                                gameData.whiteUsername() + " is in check"));
+            }
+        }
+
+        if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            connections.broadcast(gameID, null,
+                    new Notification("NOTIFICATION",
+                            gameData.blackUsername() + " is in checkmate. " +
+                                    gameData.whiteUsername() + " wins"));
+        }else{
+            if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                connections.broadcast(gameID, null,
+                        new Notification("NOTIFICATION",
+                                gameData.blackUsername() + " is in check"));
+            }
         }
     }
     void leave(UserGameCommand command,WsMessageContext ctx) throws DataAccessException, IOException, InvalidMoveException{

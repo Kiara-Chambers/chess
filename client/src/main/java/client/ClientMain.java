@@ -12,6 +12,11 @@ import static client.ChessUI.*;
 import static java.lang.System.exit;
 import static client.ClientHandlers.*;
 
+//DONE: row and column swapped -> error message should be better
+//DONE: checkmate needs a username
+//DONE: join needs to have color/role
+//DONE: does check include username?
+
 public class ClientMain implements NotificationHandler{
     public static ServerFacade facade;
     public static boolean loggedIn = false;
@@ -195,6 +200,10 @@ public class ClientMain implements NotificationHandler{
 
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
             System.out.println("ERROR: " + message.getErrorMessage());
+            return;
+        }
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            System.out.println(message.getMessage());
             return;
         }
 
