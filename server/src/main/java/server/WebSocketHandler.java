@@ -233,9 +233,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 "serverMessageType","ERROR",
                 "errorMessage", e.getMessage()
         )));
-    }
+        }catch (Exception e) {
+                System.out.println("WS ERROR: " + e.getMessage());
 
-    }
+                ctx.send(gson.toJson(Map.of(
+                        "serverMessageType", "ERROR",
+                        "errorMessage", e.getMessage() == null ? "Please enter valid input" : e.getMessage()
+                )));
+
+        }}
 
     @Override
     public void handleClose(WsCloseContext ctx) {

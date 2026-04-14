@@ -162,12 +162,17 @@ public class ClientHandlers {
             }
             System.out.println("You are observing the game!");
 
-            inGame= true;
-            currentGameID= Integer.parseInt(gameID);
-            pers ="WHITE";
-            ws.connect(authToken, Integer.parseInt(gameID));
+            var map = (java.util.Map<?, ?>) lastGames.get(index);
+            int actualGameID = ((Number) map.get("gameID")).intValue();
 
-            drawChessBoard(chessBoard,"WHITE");
+            ws.connect(authToken, actualGameID);
+            currentGameID = actualGameID;
+            inGame = true;
+           // pers = "WHITE";
+            chessBoard = new ChessBoard();
+            chessBoard.resetBoard();
+
+            //drawChessBoard(chessBoard,"WHITE");
             menu();
         } catch (Exception e) {
             System.out.println("failed to observe game");
