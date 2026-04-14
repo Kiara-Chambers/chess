@@ -127,12 +127,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         );
 
         gameData.game().makeMove(move);
-
-        boolean whiteCheck = gameData.game().isInCheck(ChessGame.TeamColor.WHITE);
-        boolean blackCheck = gameData.game().isInCheck(ChessGame.TeamColor.BLACK);
-        boolean whiteMate = gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE);
-        boolean blackMate = gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK);
-
         gameDAO.updateGame(gameData);
 
         var loadGameMsg = gson.toJson(Map.of(
@@ -161,6 +155,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            resignedPlayers.add(gameKey);
             connections.broadcast(gameID, null,
                     new Notification("NOTIFICATION",
                             gameData.whiteUsername() + " is in checkmate. " +
@@ -174,6 +169,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            resignedPlayers.add(gameKey);
             connections.broadcast(gameID, null,
                     new Notification("NOTIFICATION",
                             gameData.blackUsername() + " is in checkmate. " +
